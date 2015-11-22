@@ -17,7 +17,7 @@ class Department(models.Model):
 
 class User(models.Model):
     name = models.CharField(max_length=10)
-    passwd = models.p(max_length=6)
+    passwd = models.CharField(max_length=6)
     contact = models.CharField(max_length=50)
 
 
@@ -28,16 +28,6 @@ class Doctor(models.Model):
     hospital = models.ForeignKey(Hospital)
     department = models.ForeignKey(Department)
 
-
-class Order(models.Model):
-    fare = models.FloatField(max_digits=6, decimal_places=6)
-    appointment = models.ForeignKey(Appointment)
-    hospital = models.ForeignKey(Hospital)
-    department = models.ForeignKey(Department)
-    doctor = models.ForeignKey(Doctor)
-    user = models.ForeignKey(User)
-
-
 class Appointment(models.Model):
     appointment_date = models.TimeField
     create_date = models.TimeField(auto_now=True)
@@ -45,3 +35,13 @@ class Appointment(models.Model):
     department = models.ForeignKey(Department)
     doctor = models.ForeignKey(Doctor)
     user = models.ForeignKey(User)
+
+class Order(models.Model):
+    fare = models.FloatField()
+    appointment = models.ForeignKey(Appointment)
+    hospital = models.ForeignKey(Hospital)
+    department = models.ForeignKey(Department)
+    doctor = models.ForeignKey(Doctor)
+    user = models.ForeignKey(User)
+
+
