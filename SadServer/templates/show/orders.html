@@ -1,0 +1,46 @@
+{% extends 'show/layout.html' %}
+{% load staticfiles %}
+
+{% block headjs%}
+<script type="text/javascript">
+	$(document).ready(function(){
+		$('#hospital').addClass('active');
+	});
+</script>
+{% endblock %}
+
+{% block body %}
+<!-- about -->
+<div class="orders">
+	<div class="container">
+		{% for dept in departments %}
+		<div class="order-top">
+			<li class="data"><h4>{{ dept.name }}</h4>
+				{% for doctor in dept.doctors %}
+				<p>{{ doctor.name }}</p>
+				{% endfor %}
+			</li>
+			<li class="data">
+				<div class="special-info grid_1 simpleCart_shelfItem">
+					<h4>挂号费</h4>
+					{% for doctor in dept.doctors %}
+					<div class="pre-top">
+						<div class="pr-left">
+							<div class="item_add"><span class="item_price"><h6>{{ doctor.price }}</h6></span></div>
+						</div>
+
+						<div class="pr-right">
+							<div class="item_add"><span class="item_price">选择时间: <input type="datetime" /> <a href="#">预约</a></span></div>
+						</div>
+							<div class="clearfix"></div>
+					</div>
+					{% endfor %}
+				</div>
+			</li>
+			<div class="clearfix"></div>
+		</div>
+		{% endfor %}
+<!-- about -->	
+
+    {{ block.super }}
+{% endblock %}

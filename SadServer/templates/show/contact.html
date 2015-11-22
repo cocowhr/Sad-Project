@@ -1,0 +1,51 @@
+{% extends 'show/layout.html' %}
+{% load staticfiles %}
+
+{% block headjs%}
+<script type="text/javascript">
+	$(document).ready(function(){
+		$('#contactpage').addClass('active');
+	});
+</script>
+{% endblock %}
+
+{% block body %}
+<!-- contact -->
+	<div class="contact">
+	 <div class="container">
+		  <div class="contact-head">
+			 <h3>联系我们</h3>			 
+		  </div>
+		  <div class="contact-grid">
+			 <form>
+				 <input type="text" placeholder="姓名" required/>
+				 <input type="text" placeholder="电子邮件地址" required/>
+				 <input type="text" placeholder="移动电话号码" required/>
+				 <input type="text" placeholder="您所在的城市" required/>
+				 <textarea placeholder="留言"></textarea>
+				 <input type="submit" value="发�??"/>
+			 </form>
+		  </div>
+		  <div class="contact-details">
+			  <div class="col-md-6 contact-map">
+				 <h4>来这里找我们</h4>
+				 <iframe src="https://www.google.com/maps/embed?pb=!1m18!1m12!1m3!1d803187.8113675824!2d-120.11910914056458!3d38.15292455846902!2m3!1f0!2f0!3f0!3m2!1i1024!2i768!4f13.1!3m3!1m2!1s0x808fb9fe5f285e3d%3A0x8b5109a227086f55!2sCalifornia%2C+USA!5e0!3m2!1sen!2sin!4v1423829283333" frameborder="0" style="border:0"></iframe>
+			  </div>
+			  <div class="col-md-6 company_address">		 
+					<h4>地址</h4>
+					<p>中国（P.R.�?</p>
+					<p>北京�? 海淀�?</p>
+					<p>学院�?37�? 北京航空航天大学</p>
+					<p>电话:(86) 110</p>
+					<p>Email: <a href="mailto:info@example.com">info@mycompany.com</a></p>
+					<p>关注我们: <a href="#">Facebook</a>, <a href="#">Twitter</a></p>
+			 </div>
+			  <div class="clearfix"></div>
+	     </div>		 
+	 </div>
+</div>
+
+<!-- contact -->	
+
+    {{ block.super }}
+{% endblock %}

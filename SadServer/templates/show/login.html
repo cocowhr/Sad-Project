@@ -1,0 +1,47 @@
+{% extends 'show/layout.html' %}
+{% load staticfiles %}
+
+{% block headjs%}
+<script type="text/javascript">
+	$(document).ready(function(){
+		$('#loginpage').addClass('active');
+	});
+</script>
+{% endblock %}
+
+{% block body %}
+<!-- register -->
+	<div class="login-page">
+		<div class="container">
+			<div class="account_grid">
+				<div class="col-md-6 login-left wow fadeInLeft" data-wow-delay="0.4s">
+					<h3>新用户</h3>
+					<p>如果您还没有挂号平台账户，请注册一个再预约挂号。</p>
+					<a class="acount-btn" href="{% url 'view.register' %}">注册账户</a>
+			   </div>
+			   <div class="col-md-6 login-right wow fadeInRight" data-wow-delay="0.4s">
+					<h3>已注册用户</h3>
+					<p>如果您已注册，请直接登录。</p>
+					<form>
+						<div>
+							<span>身份证号<label>*</label></span>
+							<input type="text"> 
+						</div>
+						<div>
+							<span>密码<label>*</label></span>
+							<input type="password"> 
+						</div>
+						<a class="forgot" href="#">忘记密码？</a>
+						<input type="submit" value="登录">
+					</form>
+			   </div>	
+				<div class="clearfix"> </div>
+			</div>
+		</div>
+	</div>
+
+
+<!-- register -->	
+
+    {{ block.super }}
+{% endblock %}

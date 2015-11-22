@@ -1,0 +1,34 @@
+{% extends 'show/layout.html' %}
+{% load staticfiles %}
+
+{% block headjs%}
+<script type="text/javascript">
+	$(document).ready(function(){
+		$('#hospital').addClass('active');
+	});
+</script>
+{% endblock %}
+
+{% block body %}
+<!-- about -->
+<div class="orders">
+	<div class="container">
+		{% for hospital in hospitalList %}
+		<div class="order-top">
+			<li class="im-g"><a href="#"><img src="{% static '{{ hospital.picPath }}' %}" class="img-responsive" alt=""></a></li>
+			<li class="data"><h4>{{ hospital.name }}</h4>
+				<p>{{ hospital.loc }}</p>
+				<P>{{ hospital.intro }}</P>
+			</li>
+			<li class="bt-nn">
+				<a class="morebtn hvr-rectangle-in" href="{% url 'view.orders' %}">查看科室</a>
+			</li>
+			<div class="clearfix"></div>
+		</div>
+		{% endfor %}
+	</div>
+</div>
+<!-- about -->	
+
+    {{ block.super }}
+{% endblock %}
