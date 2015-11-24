@@ -1,7 +1,7 @@
 # -*- coding: utf-8 -*-
 
 from django.db import models
-
+from django.core.exceptions import ObjectDoesNotExist
 
 class Hospital(models.Model):
     name = models.CharField(max_length=50)

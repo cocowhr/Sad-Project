@@ -17,19 +17,19 @@
 				<div class="col-md-6 login-left wow fadeInLeft" data-wow-delay="0.4s">
 					<h3>新用户</h3>
 					<p>如果您还没有挂号平台账户，请注册一个再预约挂号。</p>
-					<a class="acount-btn" href="{% url 'view.register' %}">注册账户</a>
+					<a class="acount-btn" href="{% url 'show.views.register' %}">注册账户</a>
 			   </div>
 			   <div class="col-md-6 login-right wow fadeInRight" data-wow-delay="0.4s">
 					<h3>已注册用户</h3>
 					<p>如果您已注册，请直接登录。</p>
-					<form>
+					<form action="/api/login/" method="post">
 						<div>
-							<span>身份证号<label>*</label></span>
-							<input type="text"> 
+							<span>用户名<label>*</label></span>
+							<input type="text" name="name">
 						</div>
 						<div>
 							<span>密码<label>*</label></span>
-							<input type="password"> 
+							<input type="password" name="password">
 						</div>
 						<a class="forgot" href="#">忘记密码？</a>
 						<input type="submit" value="登录">

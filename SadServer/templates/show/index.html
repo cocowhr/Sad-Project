@@ -1,155 +1,164 @@
 {% extends 'show/layout.html' %}
 {% load staticfiles %}
 
-{% block headjs%}
-<script type="text/javascript">
-	$(document).ready(function(){
-		$('#homepage').addClass('active');
-	});
-</script>
+{% block headjs %}
+    <script type="text/javascript">
+        $(document).ready(function () {
+            $('#homepage').addClass('active');
+        });
+    </script>
 {% endblock %}
 
 {% block body %}
-    
-<!-- banner -->
-	<div class="banner">
-		<div class="container">
-		<div class="b_room">
-				<div class="booking_room"><br />
-					<div class="reservation">
-						<div class="book-top">
-							<div class="b-search">
-								<div class="boo-lef">
-								<i class="sear"></i>
-								<p>1.查找医院</p>
-								</div>
-							</div>
-							<div class="pick">
-								<div class="boo-lef">
-								<i class="sele"></i>
-								<p>2.选择<br />科室日期</p>
-								</div>
-							</div>
-							<div class="delv">
-								<div class="boo-lef">
-								<i class="ca-r"></i>
-								<p>3.预约</p>
-								</div>
-							</div>
-							<div class="clearfix"> </div>
-						</div>
-						<ul>
-							<li class="span1_of_1">
-								 <!-- start section_room -->
-								 <form>
-									<input type="text" class="textbox" value="医院名称" onFocus="this.value = '';" onBlur="if (this.value == '') {this.value = '医院名称';}">
-								</form>
-							 </li>	
-							<li class="span1_of_1">
-								 <!-- start section_room -->
-								 <div class="section_room">
-									  <select id="country" onChange="change_country(this.value)" class="frm-field required">
-										<option value="null">医院所在区域</option>
-										<option value="null">常用位置</option>
-										{% for loc in addrList %}
-										<option value="{{ loc }}">{{ loc }}</option>
-										{% endfor %}
-									  </select>
-								 </div>	
-							 </li>				  
-							 <li class="span1_of_3">
-									<div class="date_btn">
 
-										<form action="{% url 'show.views.hospitals' %}">
-											<input type="submit" value="搜索">
-										</form>
-									</div>
-							 </li>
-								<div class="clearfix"></div>
-						</ul>
-					</div>
-				</div>	
-			</div>
-	</div>
-	</div>
-<!-- banner -->	
-<!-- latis -->	
-	<div class="latis">
-		<div class="container">
-		{% for hospital in hospitalList %}
-		<div class="col-md-4 latis-left">
-			<h3>{{ hospital.name }}</h3>
-			<img src="{% static '{{ hospital.picPath }}' %}" class="img-responsive" alt="">
-			<div class="special-info grid_1 simpleCart_shelfItem">
-				<p>{{ hospital.intro }}</p>
-				<div class="cur">
-					<div class="cur-left">
-						<div class="item_add"><span class="item_price"><a class="morebtn hvr-rectangle-in" href="#">查看</a></span></div>
-					</div>
-					<div class="cur-right">
-						<div class="item_add"><span class="item_price"><h6>{{ hoptital.AVGprice }}</h6></span></div>
-					</div>
-						<div class="clearfix"> </div>
-				</div>
-			</div>
-		</div>
-		{% endfor %}
-			<div class="clearfix"> </div>
-			
-				
-	</div>
-	</div>
-<!-- latis -->	
-<!-- feature -->
-<div class="feature">
-		<div class="container">
-			<div class="fle-xsel">
-				<ul id="flexiselDemo3">
-					{% for pic in picList %}
-					<li>							
-						<img src="{% static '{{ pic.path }}' %}" class="img-responsive" alt="{{ pic.info }}">		
-					</li>
-					{% endfor %}			
-				</ul>
-							
-							 <script type="text/javascript">
-								$(window).load(function() {
-									
-									$("#flexiselDemo3").flexisel({
-										visibleItems: 8,
-										animationSpeed: 1000,
-										autoPlay: true,
-										autoPlaySpeed: 3000,    		
-										pauseOnHover: true,
-										enableResponsiveBreakpoints: true,
-										responsiveBreakpoints: { 
-											portrait: { 
-												changePoint:480,
-												visibleItems: 2
-											}, 
-											landscape: { 
-												changePoint:640,
-												visibleItems: 3
-											},
-											tablet: { 
-												changePoint:768,
-												visibleItems: 3
-											}
-										}
-									});
-									
-								});
-								</script>
-								<script type="text/javascript" src="{% static 'js/jquery.flexisel.js' %}"></script>
-					<div class="clearfix"> </div>
-				
-			</div>
-		</div>
-	</div>
-<!-- feature -->
+    <!-- banner -->
+    <div class="banner">
+        <div class="container">
+            <div class="b_room">
+                <div class="booking_room"><br/>
 
-<!-- magnust -->	
-<!--
+                    <div class="reservation">
+                        <div class="book-top">
+                            <div class="b-search">
+                                <div class="boo-lef">
+                                    <i class="sear"></i>
+
+                                    <p>1.查找医院</p>
+                                </div>
+                            </div>
+                            <div class="pick">
+                                <div class="boo-lef">
+                                    <i class="sele"></i>
+
+                                    <p>2.选择<br/>科室日期</p>
+                                </div>
+                            </div>
+                            <div class="delv">
+                                <div class="boo-lef">
+                                    <i class="ca-r"></i>
+
+                                    <p>3.预约</p>
+                                </div>
+                            </div>
+                            <div class="clearfix"></div>
+                        </div>
+                        <ul>
+                            <form action="/api/searchhospname/" method="get">
+                                <li class="span1_of_1">
+                                    <!-- start section_room -->
+
+                                    <input type="text" name="hospname" class="textbox" value="医院名称" onFocus="this.value = '';"
+                                           onBlur="if (this.value == '') {this.value = '医院名称';}">
+
+                                </li>
+                                <li class="span1_of_1">
+                                    <!-- start section_room -->
+                                    <div class="section_room">
+                                        <select id="country" onChange="change_country(this.value)"
+                                                class="frm-field required">
+                                            <option value="null">医院所在区域</option>
+                                            <option value="null">常用位置</option>
+                                            {% for loc in addrList %}
+                                                <option value="{{ loc }}">{{ loc }}</option>
+                                            {% endfor %}
+                                        </select>
+                                    </div>
+                                </li>
+                                <li class="span1_of_3">
+                                    <div class="date_btn">
+                                        <input type="submit" value="搜索">
+                                    </div>
+                                </li>
+                                <div class="clearfix"></div>
+                            </form>
+                        </ul>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+    <!-- banner -->
+    <!-- latis -->
+    <div class="latis">
+        <div class="container">
+            {% for hospital in hospitalList %}
+                <div class="col-md-4 latis-left">
+                    <h3>{{ hospital.name }}</h3>
+                    <img src="{% static '{{ hospital.picPath }}' %}" class="img-responsive" alt="">
+
+                    <div class="special-info grid_1 simpleCart_shelfItem">
+                        <p>{{ hospital.intro }}</p>
+
+                        <div class="cur">
+                            <div class="cur-left">
+                                <div class="item_add"><span class="item_price"><a class="morebtn hvr-rectangle-in"
+                                                                                  href="#">查看</a></span></div>
+                            </div>
+                            <div class="cur-right">
+                                <div class="item_add"><span class="item_price"><h6>{{ hoptital.AVGprice }}</h6></span>
+                                </div>
+                            </div>
+                            <div class="clearfix"></div>
+                        </div>
+                    </div>
+                </div>
+            {% endfor %}
+            <div class="clearfix"></div>
+
+
+        </div>
+    </div>
+    <!-- latis -->
+    <!-- feature -->
+    <div class="feature">
+        <div class="container">
+            <div class="fle-xsel">
+                <ul id="flexiselDemo3">
+                    {% for pic in picList %}
+                        <li>
+                            <img src="{% static '{{ pic.path }}' %}" class="img-responsive" alt="{{ pic.info }}">
+                        </li>
+                    {% endfor %}
+                </ul>
+
+                <script type="text/javascript">
+                    $(window).load(function () {
+
+                        $("#flexiselDemo3").flexisel({
+                            visibleItems: 8,
+                            animationSpeed: 1000,
+                            autoPlay: true,
+                            autoPlaySpeed: 3000,
+                            pauseOnHover: true,
+                            enableResponsiveBreakpoints: true,
+                            responsiveBreakpoints: {
+                                portrait: {
+                                    changePoint: 480,
+                                    visibleItems: 2
+                                },
+                                landscape: {
+                                    changePoint: 640,
+                                    visibleItems: 3
+                                },
+                                tablet: {
+                                    changePoint: 768,
+                                    visibleItems: 3
+                                }
+                            }
+                        });
+
+                    });
+                </script>
+                <script type="text/javascript" src="{% static 'js/jquery.flexisel.js' %}"></script>
+                <div class="clearfix"></div>
+
+            </div>
+        </div>
+    </div>
+    <!-- feature -->
+
+    <!-- magnust -->
+    <!--
 	<div class="magnust">
 		<div class="container">
 			<h3>Nascetur ridiculus mus</h3>
@@ -191,7 +200,7 @@
 	</div>
 	</div>
 -->
-<!-- magnust -->	
+    <!-- magnust -->
 
 
     {{ block.super }}
