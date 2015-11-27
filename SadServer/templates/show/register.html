@@ -2,61 +2,110 @@
 {% load staticfiles %}
 
 {% block headjs %}
-    <script type="text/javascript">
-        $(document).ready(function () {
-            $('#loginpage').addClass('active');
-        });
-    </script>
+<script type="text/javascript">
+$(document).ready(function () {
+    $('#loginpage').addClass('active');
+});
+</script>
+<script type="text/javascript">
+function str(term)
+{
+    return "请输入"+term+"！";
+}
+function check()
+{
+    var name = document.getElementById('input_name');
+    var id = document.getElementById('input_id');
+    var phone = document.getElementById('input_phone');
+    var password = document.getElementById('input_password');
+    var password_confirm = document.getElementById('password_confirm');
+    if(name.value == "")
+    {
+        alert(str("姓名"));
+        name.focus();
+        return false;
+    }
+    else if(id.value == "")
+    {
+        alert(str("身份证号"));
+        id.focus();
+        return false;
+    }
+    else if(phone.value == "")
+    {
+        alert(str("手机号码"));
+        phone.focus();
+        return false;
+    }
+    else if(password.value == "")
+    {
+        alert(str("密码"));
+        password.focus();
+        return false;
+    }
+    else if(password_confirm.value == "")
+    {
+        alert("请再次输入密码！");
+
+        password_confirm.focus();
+        return false;
+    }
+    else if(password.value != password_confirm.value)
+    {
+        alert("密码不一致！");
+        password_confirm.focus();
+        password_confirm.value="";
+        return false;
+    }
+    return true;
+}
+</script>
 {% endblock %}
 
 {% block body %}
-    <!-- register -->
-    <div class="main-1">
-        <div class="container">
-            <div class="register">
-                <form action="/api/register/" method="post">
-                    <div class="register-top-grid">
-                        <h3>个人信息</h3>
-                        <div class="wow fadeInLeft" data-wow-delay="0.4s">
-                            <span>姓名<label>*</label></span>
-                            <input type="text" name="name">
-                        </div>
-                        <div class="wow fadeInRight" data-wow-delay="0.4s">
-                            <span>身份证号<label>*</label></span>
-                            <input type="text" name="idcard">
-                        </div>
-                        <div class="wow fadeInRight" data-wow-delay="0.4s">
-                            <span>移动电话<label>*</label></span>
-                            <input type="text" name="contact">
-                        </div>
-                        <div class="clearfix"></div>
-                        <a class="news-letter" href="#">
-                            <label class="checkbox"><input type="checkbox" name="checkbox"
-                                                           checked=""><i> </i>接收�?讯推�?</label>
-                        </a>
+<!-- register -->
+<div class="main-1">
+    <div class="container">
+        <div class="register">
+            <form action="/api/register/" method="post" onSubmit="return check()">
+                <div class="register-top-grid">
+                    <h3>个人信息</h3>
+                    <div class="wow fadeInLeft" data-wow-delay="0.4s">
+                        <span>姓名<label>*</label></span>
+                        <input type="text" name="name" id = "input_name">
                     </div>
-                    <div class="register-bottom-grid">
-                        <h3>密码设置</h3>
-                        <div class="wow fadeInLeft" data-wow-delay="0.4s">
-                            <span>输入密码<label>*</label></span>
-                            <input type="password" name="password">
-                        </div>
-                        <div class="wow fadeInRight" data-wow-delay="0.4s">
-                            <span>确认密码<label>*</label></span>
-                            <input type="password" name="confirmpassword">
-                        </div>
+                    <div class="wow fadeInRight" data-wow-delay="0.4s">
+                        <span>身份证号<label>*</label></span>
+                        <input type="text" name="idcard" id = "input_id">
                     </div>
+                    <div class="wow fadeInRight" data-wow-delay="0.4s">
+                        <span>移动电话<label>*</label></span>
+                        <input type="text" name="contact" id = "input_phone">
+                    </div>
+                </div>
+                <div class="clearfix"></div>
+                <div class="register-bottom-grid">
+                    <h3>密码设置</h3>
+                    <div class="wow fadeInLeft" data-wow-delay="0.4s">
+                        <span>输入密码<label>*</label></span>
+                        <input type="password" name="password" id = "input_password">
+                    </div>
+                    <div class="wow fadeInRight" data-wow-delay="0.4s">
+                        <span>确认密码<label>*</label></span>
+                        <input type="password" name="confirmpassword" id = "password_confirm">
+                    </div>
+                </div>
+                <div class="clearfix"></div>
+                <div class="register-but">
+                    <input type="submit" value="submit">
                     <div class="clearfix"></div>
-                    <div class="register-but">
-                        <input type="submit" value="submit">
-                        <div class="clearfix"></div>
-                    </div>
-                </form>
-            </div>
+                </div>
+            </form>
         </div>
     </div>
+</div>
 
-    <!-- register -->
+<!-- register -->
 
-    {{ block.super }}
+{{ block.super }}
 {% endblock %}
