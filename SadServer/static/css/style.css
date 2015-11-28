@@ -1073,7 +1073,7 @@ i.sele{
 .register-but{
 	margin-top:1em;
 }
-.register-but form input[type="submit"] {
+.register-but input[type="submit"] {
   background:#5fa022;
   color: #FFF;
   font-size: 1em;
