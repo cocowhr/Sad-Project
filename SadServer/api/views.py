@@ -4,6 +4,7 @@ from django.http import HttpResponse, Http404
 from api.models import *
 import urllib.parse
 import json
+import time
 # Create your views here.
 @csrf_exempt
 def register(request):
@@ -68,6 +69,7 @@ def searchdepartment(request, hospitalid):
     try:
         deplist = Department.objects.filter(hospital=hospitalid)
         context = {}
+        context['hospitalid']=hospitalid
         context['departments'] = []
         for dep in deplist:
             dep1 = {}
@@ -77,14 +79,31 @@ def searchdepartment(request, hospitalid):
             doclist=Doctor.objects.filter(department=dep.id)
             for doc in doclist:
                 doc1={}
+                doc1['id']=doc.id
                 doc1['name'] =doc.name
+                doc1['rank'] =doc.name
                 doc1['price'] =doc.fee
                 dep1['doctors'].append(doc1)
             context['departments'].append(dep1)
-        return render(request, 'show/orders.html', context)
+        return render(request, 'show/select.html', context)
     except ObjectDoesNotExist:
         return render(request, 'show/hello.html', context)
 
+@csrf_exempt
+def appoint(request,hospital,department,doctor,user):
+    context = {}
+    name = request.POST['name']
+    idcard = request.POST['idcard']
+    contact = request.POST['contact']
+    password = request.POST['password']
+    appointlist = Appointment.objects.filter(user=user,docter=doctor)
+    if appointlist.__len__() > 0:
+        return render(request, 'show/hello.html', context)
+        # 判断用户名是否被注册
+    else:
+        context = {}
+        Appointment.objects.create(date=time(),hospital=hospital,department=department,doctor=doctor,user=user)
+        return render(request, 'show/index.html', context)
 
 
 #Android

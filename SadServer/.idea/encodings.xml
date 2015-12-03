@@ -4,6 +4,13 @@
     <file url="file://$PROJECT_DIR$/SadServer/__init__.py" charset="UTF-8" />
     <file url="file://$PROJECT_DIR$/SadServer/urls.py" charset="UTF-8" />
     <file url="file://$PROJECT_DIR$/static" charset="UTF-8" />
+    <file url="file://$PROJECT_DIR$/static/css/bootstrap-datetimepicker.min.css" charset="GBK" />
+    <file url="file://$PROJECT_DIR$/static/css/docs.css" charset="GBK" />
+    <file url="file://$PROJECT_DIR$/static/js/bootstrap-datetimepicker.min.js" charset="GBK" />
+    <file url="file://$PROJECT_DIR$/static/js/bootstrap.min.js" charset="GBK" />
+    <file url="file://$PROJECT_DIR$/static/js/jquery.flexisel.js" charset="GBK" />
+    <file url="file://$PROJECT_DIR$/static/js/jquery.min.js" charset="GBK" />
+    <file url="file://$PROJECT_DIR$/static/js/simpleCart.min.js" charset="GBK" />
     <file url="file://$PROJECT_DIR$/templates/show/checkout.html" charset="UTF-8" />
     <file url="file://$PROJECT_DIR$/templates/show/contact.html" charset="UTF-8" />
     <file url="file://$PROJECT_DIR$/templates/show/footer.html" charset="UTF-8" />
@@ -11,9 +18,10 @@
     <file url="file://$PROJECT_DIR$/templates/show/hospitals.html" charset="UTF-8" />
     <file url="file://$PROJECT_DIR$/templates/show/index.html" charset="UTF-8" />
     <file url="file://$PROJECT_DIR$/templates/show/layout.html" charset="GBK" />
+    <file url="file://$PROJECT_DIR$/templates/show/list.html" charset="GBK" />
     <file url="file://$PROJECT_DIR$/templates/show/login.html" charset="UTF-8" />
-    <file url="file://$PROJECT_DIR$/templates/show/orders.html" charset="UTF-8" />
     <file url="file://$PROJECT_DIR$/templates/show/register.html" charset="UTF-8" />
+    <file url="file://$PROJECT_DIR$/templates/show/select.html" charset="UTF-8" />
     <file url="PROJECT" charset="UTF-8" />
   </component>
 </project>
