@@ -33,8 +33,8 @@ class Doctor(models.Model):
 
 
 class Appointment(models.Model):
-    appointment_date = models.TimeField
-    create_date = models.TimeField(auto_now=True)
+    appointment_date = models.DateField()
+    create_date = models.DateField(auto_now=True)
     hospital = models.ForeignKey(Hospital)
     department = models.ForeignKey(Department)
     doctor = models.ForeignKey(Doctor)

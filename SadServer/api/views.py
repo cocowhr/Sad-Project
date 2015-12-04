@@ -66,6 +66,7 @@ def searchhospname(request):
 
 @csrf_exempt
 def searchdepartment(request, hospitalid):
+    #要修改
     try:
         deplist = Department.objects.filter(hospital=hospitalid)
         context = {}
@@ -90,19 +91,29 @@ def searchdepartment(request, hospitalid):
         return render(request, 'show/hello.html', context)
 
 @csrf_exempt
-def appoint(request,hospital,department,doctor,user):
+def appoint(request):
     context = {}
-    name = request.POST['name']
-    idcard = request.POST['idcard']
-    contact = request.POST['contact']
-    password = request.POST['password']
-    appointlist = Appointment.objects.filter(user=user,docter=doctor)
+    hospital = request.POST['hospital']
+    department = request.POST['department']
+    doctorid = request.POST['doctor']
+    #user = request.POST['user']
+    user=User.objects.get(id=1)
+    appointment_date = request.POST['appointment_date']
+    appointtime=time.strptime(appointment_date,"%Y-%m-%d")
+    doctor=Doctor.objects.get(id=doctorid)
+    appointlist = Appointment.objects.filter(user=user,doctor=doctor)
     if appointlist.__len__() > 0:
         return render(request, 'show/hello.html', context)
         # 判断用户名是否被注册
     else:
         context = {}
-        Appointment.objects.create(date=time(),hospital=hospital,department=department,doctor=doctor,user=user)
+        appoint = Appointment()
+        appoint.user=user
+        appoint.doctor=doctor
+        appoint.hospital=Hospital.objects.get(id=hospital)
+        appoint.department=Department.objects.get(id=department)
+        appoint.appointment_date=appointment_date
+        appoint.save()
         return render(request, 'show/index.html', context)
 
 

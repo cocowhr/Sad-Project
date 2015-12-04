@@ -1,87 +1,110 @@
 {% extends 'show/layout.html' %}
 {% load staticfiles %}
 
-{% block headjs%}
-<script type="text/javascript">
-	$(document).ready(function(){
-		$('#hospital').addClass('active');
-	});
-</script>
+{% block headjs %}
+    <script type="text/javascript">
+        $(document).ready(function () {
+            $('#hospital').addClass('active');
+        });
+    </script>
+    <script type="text/javascript">
+        function sendmsg(hospital,department,doctor,date) {
+            $.post('{% url 'api.views.appoint' %}', {hospital: (hospital),department: (department),doctor: (doctor),appointment_date: (date),}, function (result) {
+                if (result.success) {
+                    console.log(result);
+                }
+                if (result.fail) {
+                    console.log(result);
+                }
+            });
+        }
+    </script>
 {% endblock %}
 
 {% block headcss %}
-{% static 'css/docs.css' %}
+    {% static 'css/docs.css' %}
 {% endblock %}
 
 {% block body %}
-<!-- checkout -->
-<div class="row">
-      <div class="col-md-10 col-md-offset-1">
-        <div class="page-header">
-            <h3>选择科室、医生、就诊时间</h3>
+    <!-- checkout -->
+    <div class="row">
+        <div class="col-md-10 col-md-offset-1">
+            <div class="page-header">
+                <h3>选择科室、医生、就诊时间</h3>
+            </div>
         </div>
-     </div>
- </div>
-
-<div class="row">
-<div class="col-md-10 col-md-offset-1">
-
-<div class="panel-group" id="accordion" role="tablist" aria-multiselectable="true">
-
-{% for dept in departments %}
-  <div class="panel panel-primary">
-    <div class="panel-heading" role="tab" id="heading{{ dept.name }}">
-      <h4 class="panel-title">
-        <a role="button" data-toggle="collapse" data-parent="#accordion" href="#collapse{{ dept.name }}" aria-expanded="true" aria-controls="collapse{{ dept.name }}">
-          {{ dept.name }}
-        </a>
-      </h4>
     </div>
-    <div id="collapse{{ dept.name }}" class="panel-collapse collapse" role="tabpanel" aria-labelledby="heading{{ dept.name }}">
-      <div class="panel-body">
-        <table class="table">
-        	<thead>
-        		<tr>
-        			<th>姓名</th>
-        			<th>职称</th>
-        			<th>挂号费</th>
-        			<th>就诊时间选择</th>
-        			<th>预约</th>
-        		</tr>
-        	</thead>
-        	<tbody>
-        		{% for doctor in dept.doctors %}
-        		<tr>
-        			<td>{{ doctor.name }}</td>
-        			<td>{{ doctor.rank }}</td>
-        			<td>{{ doctor.price }}</td>
-        			
-				<td>
-				<div class="input-append date form_datetime row">
-					<input size="16" type="text" data-format="yyyy-MM-dd" value="" readonly>
-					<span class="add-on"><button class="btn btn-default btn-warning">选择时间</button></span>
-				    	<script type="text/javascript">
-					  $(function() {
-					    $('.date').datetimepicker({
-					      pickTime: false
-					    });
-					  });
-					</script>
-				</div>
-				</td>
-        			<td><button class="btn btn-default btn-success" onclick="window.location={% url 'show.views.hello' %} ">确认预约</button></td>
-        		</tr>
-        		{% endfor %}
-        	</tbody>
-        </table>
-      </div>
-    </div>
-  </div>
-{% endfor %}
-</div>
-</div>
 
-</div>
+    <div class="row">
+        <div class="col-md-10 col-md-offset-1">
+
+            <div class="panel-group" id="accordion" role="tablist" aria-multiselectable="true">
+
+                {% for dept in departments %}
+                    <div class="panel panel-primary">
+                        <div class="panel-heading" role="tab" id="heading{{ dept.name }}">
+                            <h4 class="panel-title">
+                                <a role="button" data-toggle="collapse" data-parent="#accordion"
+                                   href="#collapse{{ dept.name }}" aria-expanded="true"
+                                   aria-controls="collapse{{ dept.name }}">
+                                    {{ dept.name }}
+                                </a>
+                            </h4>
+                        </div>
+
+                        <div id="collapse{{ dept.name }}" class="panel-collapse collapse" role="tabpanel"
+                             aria-labelledby="heading{{ dept.name }}">
+                            <div class="panel-body">
+                                <table class="table">
+                                    <thead>
+                                    <tr>
+                                        <th>姓名</th>
+                                        <th>职称</th>
+                                        <th>挂号费</th>
+                                        <th>就诊时间选择</th>
+                                        <th>预约</th>
+                                    </tr>
+                                    </thead>
+                                    <tbody>
+                                    {% for doctor in dept.doctors %}
+                                        <tr>
+                                            <td>{{ doctor.name }}</td>
+                                            <td>{{ doctor.rank }}</td>
+                                            <td>{{ doctor.price }}</td>
+
+                                            <td>
+                                                <div class="input-append date form_datetime row">
+                                                    <input id="appointdate" size="16" type="text" data-format="yyyy-MM-dd" value=""
+                                                           readonly>
+                                                    <span class="add-on"><button class="btn btn-default btn-warning">
+                                                        选择时间
+                                                    </button></span>
+                                                    <script type="text/javascript">
+                                                        $(function () {
+                                                            $('.date').datetimepicker({
+                                                                pickTime: false
+                                                            });
+                                                        });
+                                                    </script>
+                                                </div>
+                                            </td>
+                                            <td>
+                                                <button class="btn btn-default btn-success" name="submit" id="submit"
+                                                        onclick="sendmsg('{{ hospitalid }}','{{ dept.id }}','{{ doctor.id }}',document.getElementById('appointdate').value)">确认预约
+                                                </button>
+                                            </td>
+                                        </tr>
+                                    {% endfor %}
+                                    </tbody>
+                                </table>
+                            </div>
+                        </div>
+                    </div>
+                {% endfor %}
+            </div>
+        </div>
+
+    </div>
 
     {{ block.super }}
 {% endblock %}
