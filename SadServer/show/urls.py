@@ -7,6 +7,6 @@ urlpatterns = [
     url(r'^login/$', 'show.views.login'),
     url(r'^register/$', 'show.views.register'),
     url(r'^hospitals/$', 'show.views.hospitals'),
-    url(r'^checkout/$', 'show.views.checkout'),
     url(r'^contact/$', 'show.views.contact'),
+    url(r'^list/$', 'show.views.list'),
 ]

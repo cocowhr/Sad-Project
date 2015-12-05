@@ -8,8 +8,14 @@
         });
     </script>
     <script type="text/javascript">
-        function sendmsg(hospital,department,doctor,date) {
-            $.post('{% url 'api.views.appoint' %}', {hospital: (hospital),department: (department),doctor: (doctor),appointment_date: (date),}, function (result) {
+        function sendmsg(hospital, department, doctor,price, date) {
+            $.post('{% url 'api.views.appoint' %}', {
+                hospital: (hospital),
+                department: (department),
+                doctor: (doctor),
+                price: (price),
+                appointment_date: (date),
+            }, function (result) {
                 if (result.success) {
                     console.log(result);
                 }
@@ -74,7 +80,8 @@
 
                                             <td>
                                                 <div class="input-append date form_datetime row">
-                                                    <input id="appointdate" size="16" type="text" data-format="yyyy-MM-dd" value=""
+                                                    <input name="appointdate" size="16" type="text"
+                                                           data-format="yyyy-MM-dd" value=""
                                                            readonly>
                                                     <span class="add-on"><button class="btn btn-default btn-warning">
                                                         选择时间
@@ -90,7 +97,8 @@
                                             </td>
                                             <td>
                                                 <button class="btn btn-default btn-success" name="submit" id="submit"
-                                                        onclick="sendmsg('{{ hospitalid }}','{{ dept.id }}','{{ doctor.id }}',document.getElementById('appointdate').value)">确认预约
+                                                        onclick="sendmsg('{{ hospitalid }}','{{ dept.id }}','{{ doctor.id }}','{{ doctor.price }}',document.getElementsByName('appointdate').value)">
+                                                    确认预约
                                                 </button>
                                             </td>
                                         </tr>

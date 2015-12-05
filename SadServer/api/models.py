@@ -25,6 +25,7 @@ class User(models.Model):
 
 class Doctor(models.Model):
     name = models.CharField(max_length=50)
+    rank = models.CharField(max_length=50)
     fee = models.CharField(max_length=10)
     gender = models.CharField(max_length=6)
     contact = models.CharField(max_length=50)
@@ -34,19 +35,10 @@ class Doctor(models.Model):
 
 class Appointment(models.Model):
     appointment_date = models.DateField()
+    fare = models.FloatField()
     create_date = models.DateField(auto_now=True)
     hospital = models.ForeignKey(Hospital)
     department = models.ForeignKey(Department)
     doctor = models.ForeignKey(Doctor)
     user = models.ForeignKey(User)
-
-
-class Order(models.Model):
-    fare = models.FloatField()
-    appointment = models.ForeignKey(Appointment)
-    hospital = models.ForeignKey(Hospital)
-    department = models.ForeignKey(Department)
-    doctor = models.ForeignKey(Doctor)
-    user = models.ForeignKey(User)
-
-
+    status = models.IntegerField(default=0)

@@ -24,11 +24,6 @@ def hospitals(request):
     context['key'] = "value"
     return render(request, 'show/hospitals.html', context)
 
-def checkout(request):
-    context = {}
-    context['key'] = "value"
-    return render(request, 'show/checkout.html', context)
-
 def contact(request):
     context = {}
     context['key'] = "value"
