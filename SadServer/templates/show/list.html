@@ -1,0 +1,170 @@
+{% extends 'show/layout.html' %}
+{% load staticfiles %}
+
+{% block headjs %}
+    <script type="text/javascript">
+        $(document).ready(function () {
+            $('#hospital').addClass('active');
+        });
+    </script>
+{% endblock %}
+
+{% block body %}
+    <div class="row">
+        <div class="col-md-10 col-md-offset-1">
+            <div class="page-header">
+                <h3>我的预约单</h3>
+            </div>
+        </div>
+    </div>
+
+
+    <div class="row">
+        <div class="col-md-10 col-md-offset-1">
+
+            <div class="panel-group" id="accordion" role="tablist" aria-multiselectable="true">
+
+                <div class="panel panel-danger">
+                    <div class="panel-heading" role="tab" id="headingUnpayed">
+                        <h4 class="panel-title">
+                            <a role="button" data-toggle="collapse" data-parent="#accordion" href="#collapseUnpayed"
+                               aria-expanded="true" aria-controls="collapseUnpayed">
+                                未支付的预约
+                            </a>
+                        </h4>
+                    </div>
+                    <div id="collapseUnpayed" class="panel-collapse collapse in" role="tabpanel"
+                         aria-labelledby="headingUnpayed">
+                        <div class="panel-body">
+                            <table class="table">
+                                <thead>
+                                <tr>
+                                    <th>医院</th>
+                                    <th>科室</th>
+                                    <th>挂号费</th>
+                                    <th>就诊时间</th>
+                                    <th>医生姓名</th>
+                                    <th>医生职称</th>
+                                    <th colspan="3">#</th>
+                                </tr>
+                                </thead>
+                                <tbody>
+                                {% for order in unpayedOrders %}
+                                    <tr>
+                                        <td>{{ order.hospital }}</td>
+                                        <td>{{ order.dept }}</td>
+                                        <td>{{ order.price }}</td>
+                                        <td>{{ order.date }}</td>
+                                        <td>{{ order.doctor }}</td>
+                                        <td>{{ order.rank }}</td>
+                                        <td>
+                                             <a href="{% url 'api.views.payappoint' order.appointid %}">
+                                            <button class="btn btn-default btn-primary">支付</button>
+                                                 </a>
+                                        </td>
+                                        <td>
+                                            <a href="{% url 'api.views.cancelappoint' order.appointid %}">
+                                                <button class="btn btn-default btn-danger">取消</button>
+                                            </a>
+                                        </td>
+
+                                    </tr>
+                                {% endfor %}
+                                </tbody>
+                            </table>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="panel panel-success">
+                    <div class="panel-heading" role="tab" id="headingPayed">
+                        <h4 class="panel-title">
+                            <a role="button" data-toggle="collapse" data-parent="#accordion" href="#collapsePayed"
+                               aria-expanded="true" aria-controls="collapsePayed">
+                                已支付的预约
+                            </a>
+                        </h4>
+                    </div>
+                    <div id="collapsePayed" class="panel-collapse collapse" role="tabpanel"
+                         aria-labelledby="headingPayed">
+                        <div class="panel-body">
+                            <table class="table">
+                                <thead>
+                                <tr>
+                                    <th>医院</th>
+                                    <th>科室</th>
+                                    <th>挂号费</th>
+                                    <th>就诊时间</th>
+                                    <th>医生姓名</th>
+                                    <th>医生职称</th>
+                                    <th colspan="2">#</th>
+                                </tr>
+                                </thead>
+                                <tbody>
+                                {% for order in payedOrders %}
+                                    <tr>
+                                        <td>{{ order.hospital }}</td>
+                                        <td>{{ order.dept }}</td>
+                                        <td>{{ order.price }}</td>
+                                        <td>{{ order.date }}</td>
+                                        <td>{{ order.doctor }}</td>
+                                        <td>{{ order.rank }}</td>
+                                        <td>
+                                            <button class="btn btn-default btn-success">打印预约单</button>
+                                        </td>
+                                    </tr>
+                                {% endfor %}
+                                </tbody>
+                            </table>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="panel panel-warning">
+                    <div class="panel-heading" role="tab" id="headingPast">
+                        <h4 class="panel-title">
+                            <a role="button" data-toggle="collapse" data-parent="#accordion" href="#collapsePast"
+                               aria-expanded="true" aria-controls="collapsePast">
+                                过往预约
+                            </a>
+                        </h4>
+                    </div>
+                    <div id="collapsePast" class="panel-collapse collapse" role="tabpanel"
+                         aria-labelledby="headingPast">
+                        <div class="panel-body">
+                            <table class="table">
+                                <thead>
+                                <tr>
+                                    <th>医院</th>
+                                    <th>科室</th>
+                                    <th>挂号费</th>
+                                    <th>就诊时间</th>
+                                    <th>医生姓名</th>
+                                    <th>医生职称</th>
+                                </tr>
+                                </thead>
+                                <tbody>
+                                {% for order in pastOrders %}
+                                    <tr>
+                                        <td>{{ order.hospital }}</td>
+                                        <td>{{ order.dept }}</td>
+                                        <td>{{ order.price }}</td>
+                                        <td>{{ order.date }}</td>
+                                        <td>{{ order.doctor }}</td>
+                                        <td>{{ order.rank }}</td>
+                                    </tr>
+                                {% endfor %}
+                                </tbody>
+                            </table>
+                        </div>
+                    </div>
+                </div>
+
+            </div>
+        </div>
+
+    </div>
+
+
+    {{ block.super }}
+{% endblock %}
