@@ -76,9 +76,12 @@ def searchdepartment(request, hospitalid):
         dep1['name'] = dep.name
         dep1['doctors'] = []
         doclist = Doctor.objects.filter(department=dep.id)
+        i = 0
         for doc in doclist:
             doc1 = {}
             doc1['id'] = doc.id
+            doc1['tag'] = i
+            i = i + 1
             doc1['name'] = doc.name
             doc1['rank'] = doc.rank
             doc1['price'] = doc.fee
@@ -88,8 +91,7 @@ def searchdepartment(request, hospitalid):
 
 
 @csrf_exempt
-def list(request):
-    username = request.session.get('username')
+def showlist(username):
     user = User.objects.get(name=username)
     appointlist = Appointment.objects.filter(user=user, status=0)
     context = {}
@@ -107,8 +109,9 @@ def list(request):
         appoint1['doctor'] = appoint.doctor.name
         appoint1['rank'] = appoint.doctor.rank
         context['unpayedOrders'].append(appoint1)
-    context['payedOrders']=[]
-    paylist = Appointment.objects.filter(user=user, status=1)
+    context['payedOrders'] = []
+    paylist=Order.objects.filter(user=user)
+    # paylist = Appointment.objects.filter(user=user, status=1)
     for pay in paylist:
         pay1 = {}
         pay1['appointid'] = pay.id
@@ -122,6 +125,13 @@ def list(request):
         pay1['doctor'] = pay.doctor.name
         pay1['rank'] = pay.doctor.rank
         context['payedOrders'].append(pay1)
+    return context
+
+
+@csrf_exempt
+def list(request):
+    username = request.session.get('username')
+    context = showlist(username)
     return render(request, 'show/list.html', context)
 
 
@@ -130,6 +140,8 @@ def cancelappoint(request, appointid):
     appoint = Appointment.objects.get(id=appointid)
     context = {}
     Appointment.delete(appoint)
+    username = request.session.get('username')
+    context = showlist(username)
     return render(request, 'show/list.html', context)
 
 
@@ -137,8 +149,18 @@ def cancelappoint(request, appointid):
 def payappoint(request, appointid):
     appoint = Appointment.objects.get(id=appointid)
     context = {}
-    appoint.status = 1
-    appoint.save()
+    order=Order()
+    order.hospital=appoint.hospital
+    order.doctor=appoint.doctor
+    order.department=appoint.department
+    order.user=appoint.user
+    order.appointment_date=appoint.appointment_date
+    order.create_date=appoint.create_date
+    order.fare=appoint.fare
+    order.save()
+    Appointment.delete(appoint)
+    username = request.session.get('username')
+    context = showlist(username)
     return render(request, 'show/list.html', context)
 
 
@@ -154,7 +176,7 @@ def appoint(request):
     # user=User.objects.get(id=1)
     appointment_date = request.POST['appointment_date']
     doctor = Doctor.objects.get(id=doctorid)
-    appointlist = Appointment.objects.filter(user=user, doctor=doctor)
+    appointlist = Appointment.objects.filter(user=user, department=department)
     if appointlist.__len__() == 0:
         context = {}
         appoint = Appointment()
@@ -238,3 +260,218 @@ def register_page(request):
         rresponse['status'] = 'normal'
         jresponse = json.dumps(rresponse)
         return HttpResponse(jresponse)
+
+
+@csrf_exempt
+def searchhospnameAndroid(request):
+    if request.method == 'POST':
+        try:
+            decode = m_decode(request.body)
+        except:
+            rresponse = dict()
+            rresponse['status'] = 'decode_error'
+            jresponse = json.dumps(rresponse)
+            return HttpResponse(jresponse)
+        hosplist = Hospital.objects.filter(name__contains=decode['hospital'])
+        if hosplist.__len__() > 0:
+            rresponse = dict()
+            rresponse['hospitalList'] = []
+            for hosp in hosplist:
+                hosp1 = {}
+                hosp1['id'] = hosp.id
+                hosp1['name'] = hosp.name
+                hosp1['loc'] = hosp.address
+                hosp1['intro'] = hosp.contact
+                rresponse['hospitalList'].append(hosp1)
+            rresponse['status'] = 'normal'
+            jresponse = json.dumps(rresponse)
+            return HttpResponse(jresponse)
+        else:
+            rresponse = dict()
+            rresponse['status'] = 'failed'
+            jresponse = json.dumps(rresponse)
+            return HttpResponse(jresponse)
+
+
+@csrf_exempt
+def searchdepartmentAndroid(request):
+    if request.method == 'POST':
+        try:
+            decode = m_decode(request.body)
+        except:
+            rresponse = dict()
+            rresponse['status'] = 'decode_error'
+            jresponse = json.dumps(rresponse)
+            return HttpResponse(jresponse)
+        deplist = Department.objects.filter(hospital=decode['hospital'])
+        if deplist.__len__() > 0:
+            rresponse = dict()
+            rresponse['hospitalid'] = decode['hospital']
+            rresponse['departments'] = []
+            for dep in deplist:
+                dep1 = {}
+                dep1['id'] = dep.id
+                dep1['name'] = dep.name
+                dep1['doctors'] = []
+                doclist = Doctor.objects.filter(department=dep.id)
+                for doc in doclist:
+                    doc1 = {}
+                    doc1['id'] = doc.id
+                    doc1['name'] = doc.name
+                    doc1['rank'] = doc.rank
+                    doc1['price'] = doc.fee
+                    dep1['doctors'].append(doc1)
+                    rresponse['departments'].append(dep1)
+            rresponse['status'] = 'normal'
+            jresponse = json.dumps(rresponse)
+            return HttpResponse(jresponse)
+        else:
+            rresponse = dict()
+            rresponse['status'] = 'failed'
+            jresponse = json.dumps(rresponse)
+            return HttpResponse(jresponse)
+
+
+@csrf_exempt
+def showlistAndroid(user):
+    user = User.objects.get(name=user)
+    appointlist = Appointment.objects.filter(user=user, status=0)
+    if appointlist.__len__() > 0:
+        rresponse = dict()
+        rresponse['unpayedOrders'] = []
+        for appoint in appointlist:
+            appoint1 = {}
+            appoint1['appointid'] = appoint.id
+            appoint1['hospital'] = appoint.hospital.name
+            #   appoint1['hospitalid'] = appoint.hospital.id
+            #   appoint1['doctorid'] = appoint.doctor.id
+            #   appoint1['deptid'] = appoint.department.id
+            appoint1['dept'] = appoint.department.name
+            appoint1['price'] = appoint.fare
+            appoint1['date'] = appoint.appointment_date
+            appoint1['doctor'] = appoint.doctor.name
+            appoint1['rank'] = appoint.doctor.rank
+            rresponse['unpayedOrders'].append(appoint1)
+        rresponse['payedOrders'] = []
+        paylist = Appointment.objects.filter(user=user, status=1)
+        for pay in paylist:
+            pay1 = {}
+            pay1['appointid'] = pay.id
+            pay1['hospital'] = pay.hospital.name
+            #   pay1['hospitalid'] = appoint.hospital.id
+            #   pay1['doctorid'] = appoint.doctor.id
+            #   pay1['deptid'] = appoint.department.id
+            pay1['dept'] = pay.department.name
+            pay1['price'] = pay.fare
+            pay1['date'] = pay.appointment_date
+            pay1['doctor'] = pay.doctor.name
+            pay1['rank'] = pay.doctor.rank
+            rresponse['payedOrders'].append(pay1)
+        rresponse['status'] = 'normal'
+        jresponse = json.dumps(rresponse)
+        return jresponse
+    else:
+        rresponse = dict()
+        rresponse['status'] = 'failed'
+        jresponse = json.dumps(rresponse)
+        return HttpResponse(jresponse)
+
+
+@csrf_exempt
+def listAndroid(request):
+    if request.method == 'POST':
+        try:
+            decode = m_decode(request.body)
+        except:
+            rresponse = dict()
+            rresponse['status'] = 'decode_error'
+            jresponse = json.dumps(rresponse)
+            return HttpResponse(jresponse)
+        user = User.objects.get(name=decode['user'])
+        jresponse = showlist(user)
+        return HttpResponse(jresponse)
+
+
+@csrf_exempt
+def cancelappointAndroid(request):
+    if request.method == 'POST':
+        try:
+            decode = m_decode(request.body)
+        except:
+            rresponse = dict()
+            rresponse['status'] = 'decode_error'
+            jresponse = json.dumps(rresponse)
+            return HttpResponse(jresponse)
+        try:
+            appoint = Appointment.objects.get(id=decode['appoint'])
+            Appointment.delete(appoint)
+            username = decode['username']
+            jresponse = showlist(username)
+            return HttpResponse(jresponse)
+        except ObjectDoesNotExist:
+            rresponse = dict()
+            rresponse['status'] = 'failed'
+            jresponse = json.dumps(rresponse)
+            return HttpResponse(jresponse)
+
+
+@csrf_exempt
+def payappointAndroid(request):
+    if request.method == 'POST':
+        try:
+            decode = m_decode(request.body)
+        except:
+            rresponse = dict()
+            rresponse['status'] = 'decode_error'
+            jresponse = json.dumps(rresponse)
+            return HttpResponse(jresponse)
+        try:
+            appoint = Appointment.objects.get(id=decode['appoint'])
+            appoint.status = 1
+            appoint.save()
+            username = decode['username']
+            jresponse = showlist(username)
+            return HttpResponse(jresponse)
+        except ObjectDoesNotExist:
+            rresponse = dict()
+            rresponse['status'] = 'failed'
+            jresponse = json.dumps(rresponse)
+            return HttpResponse(jresponse)
+
+@csrf_exempt
+def appointAndroid(request):
+    if request.method == 'POST':
+        try:
+            decode = m_decode(request.body)
+        except:
+            rresponse = dict()
+            rresponse['status'] = 'decode_error'
+            jresponse = json.dumps(rresponse)
+            return HttpResponse(jresponse)
+        hospital = decode['hospital']
+        department = decode['department']
+        doctorid = decode['doctorid']
+        username = decode['username']
+        price = decode['price']
+        user = User.objects.get(name=username)
+        appointment_date =decode['date']
+        doctor = Doctor.objects.get(id=doctorid)
+        appointlist = Appointment.objects.filter(user=user, doctor=doctor)
+        if appointlist.__len__() == 0:
+            appoint = Appointment()
+            appoint.user = user
+            appoint.fare = price
+            appoint.doctor = doctor
+            appoint.hospital = Hospital.objects.get(id=hospital)
+            appoint.department = Department.objects.get(id=department)
+            appoint.appointment_date = appointment_date
+            appoint.save()
+            rresponse = dict()
+            rresponse['status'] = 'normal'
+            jresponse = json.dumps(rresponse)
+            return HttpResponse(jresponse)
+        else:
+            rresponse = dict()
+            rresponse['status'] = 'failed'
+            jresponse = json.dumps(rresponse)
+            return HttpResponse(jresponse)

@@ -97,7 +97,7 @@
                                             </td>
                                             <td>
                                                 <button class="btn btn-default btn-success" name="submit" id="submit"
-                                                        onclick="sendmsg('{{ hospitalid }}','{{ dept.id }}','{{ doctor.id }}','{{ doctor.price }}',document.getElementsByName('appointdate').value)">
+                                                        onclick="sendmsg('{{ hospitalid }}','{{ dept.id }}','{{ doctor.id }}','{{ doctor.price }}',document.getElementsByName('appointdate')[{{ doctor.tag }}].value)">
                                                     确认预约
                                                 </button>
                                             </td>

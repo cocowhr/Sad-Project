@@ -62,6 +62,9 @@
                                             <button class="btn btn-default btn-primary">支付</button>
                                                  </a>
                                         </td>
+                                          <td>
+                                            <button class="btn btn-default btn-success">打印预约单</button>
+                                        </td>
                                         <td>
                                             <a href="{% url 'api.views.cancelappoint' order.appointid %}">
                                                 <button class="btn btn-default btn-danger">取消</button>
@@ -110,7 +113,7 @@
                                         <td>{{ order.doctor }}</td>
                                         <td>{{ order.rank }}</td>
                                         <td>
-                                            <button class="btn btn-default btn-success">打印预约单</button>
+                                            <button class="btn btn-default btn-success">打印挂号单</button>
                                         </td>
                                     </tr>
                                 {% endfor %}
