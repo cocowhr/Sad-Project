@@ -5,6 +5,16 @@ from api.models import *
 import urllib.parse
 import json
 import time
+
+
+# 安卓post解码用
+def m_decode(message):  # json字符串解码
+    decodestr = urllib.parse.unquote(message.decode())
+    decodestr = decodestr[11:]
+    decode = json.loads(decodestr)
+    return decode
+
+
 # Create your views here.
 @csrf_exempt
 def register(request):
@@ -370,12 +380,6 @@ def setmax(request):
         return JsonResponse({'fail': True})
 
 # Android
-def m_decode(message):  # json字符串解码
-    decodestr = urllib.parse.unquote(message.decode())
-    decodestr = decodestr[11:]
-    decode = json.loads(decodestr)
-    return decode
-
 
 @csrf_exempt
 def loginandroid(request):
