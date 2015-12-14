@@ -1,0 +1,187 @@
+{% extends 'show/bkstg_layout.html' %}
+{% load staticfiles %}
+
+{% block headjs %}
+    <script type="text/javascript" xmlns:option="http://www.w3.org/1999/xhtml"
+            xmlns:option="http://www.w3.org/1999/xhtml">
+        $(document).ready(function () {
+            $('#hospital').addClass('active');
+            $("#selectdept").hide();
+            $("#selectdoc").hide();
+            $("#success").hide();
+            $("#fail").hide();
+        });
+    </script>
+    <script type="text/javascript">
+        $(function () {
+            $("#selecthosp").change(function () {
+                if (($(this).val()) >= 0) {
+                    getdept($(this).val())
+                }
+                else {
+                    $("#selectdept").hide();
+                }
+            });
+        });
+        $(function () {
+            $("#selectdept").change(function () {
+                if (($(this).val()) >= 0) {
+                    getdoc($(this).val())
+                }
+                else {
+                    $("#selectdoc").hide();
+                }
+            });
+        });
+        $(function () {
+            $("#selectdoc").change(function () {
+                if (($(this).val()) >= 0) {
+                    document.getElementById("docname").innerHTML = "医生：" + ($(this).find("option:selected").text())
+                }
+                else {
+                    document.getElementById("docname").innerHTML = "医生："
+                }
+            });
+        });
+        function getdept(hospital) {
+            $.post('{% url 'api.views.getdept' %}', {
+                hospital: (hospital),
+            }, function (result) {
+                if (result.success) {
+                    $("#selectdept").show();
+                    var selectdept = document.getElementById('selectdept');
+                    selectdept.options.length = 0;
+                    selectdept.options.add(new Option("选择科室...", "-1")); //这个兼容IE与firefox
+                    var deptlist = result.context.deptlist
+                    for (var dep in deptlist) {
+                        selectdept.options.add(new Option(deptlist[dep].name, deptlist[dep].id));
+                    }
+                }
+                if (result.fail) {
+                }
+            });
+        }
+        function getdoc(dept) {
+            $.post('{% url 'api.views.getdoc' %}', {
+                dept: (dept),
+            }, function (result) {
+                if (result.success) {
+                    $("#selectdoc").show();
+                    var selectdoc = document.getElementById('selectdoc');
+                    selectdoc.options.length = 0;
+                    selectdoc.options.add(new Option("选择医生...", "-1"));
+                    var doclist = result.context.doclist
+                    for (var doc in doclist) {
+                        selectdoc.options.add(new Option(doclist[doc].name, doclist[doc].id));
+                    }
+                }
+                if (result.fail) {
+                }
+            });
+        }
+    </script>
+    <script type="text/javascript">
+        function sendmsg(doctor, date, num) {
+            $.post('{% url 'api.views.setmax' %}', {
+                doctor: (doctor),
+                date: (date),
+                num: (num),
+            }, function (result) {
+                if (result.success) {
+                    $("#success").fadeIn();
+                }
+                if (result.fail) {
+                    $("#fail").fadeIn();
+                }
+            });
+        }
+    </script>
+{% endblock %}
+
+{% block body %}
+    <!-- register -->
+    <div class="container">
+        <div class="row">
+            <div class="col-md-12">
+                <div class="row">
+                    <div class="col-md-12">
+                        <div class="page-header">
+                            <h3>后台管理</h3>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="row">
+                    <div class="col-md-3"><h4>您要维护哪位医生的出诊信息？</h4></div>
+                    <div class="col-md-2">
+                        <select id="selecthosp" class="form-control">
+                            <option value="-1" selected>选择医院...</option>
+                            {% for hosp in hospitalList %}
+                                <option value="{{ hosp.id }}">{{ hosp.name }}</option>
+                            {% endfor %}
+                        </select>
+                    </div>
+                    <div class="col-md-2" >
+                        <select id="selectdept" class="form-control">
+                        </select>
+                    </div>
+                    <div class="col-md-2">
+                        <select id="selectdoc" class="form-control">
+                        </select>
+                    </div>
+
+
+                    <div class="row">
+                        <div class="col-md-12">
+                            <div class="alert alert-success text-center" role="alert" id="success">
+                                设定成功
+                            </div>
+                            <div class="alert alert-warning text-center" role="alert" id="fail"> 设定失败</div>
+                            <div id="docname" class="page-header">
+                                <h4>医生：</h4>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="well row">
+                        <div class="col-md-4">
+                            <label class="control-label">日期</label>
+
+                            <div class="input-append date form_datetime row">
+                                <input id="date" class="form-control" size="16" type="text" data-format="yyyy-MM-dd"
+                                       value="" readonly required>
+                                <span class="add-on"><button class="btn btn-default btn-warning">选择日期</button></span>
+                                <script type="text/javascript">
+                                    $(function () {
+                                        $('.date').datetimepicker({
+                                            pickTime: false
+                                        });
+                                    });
+                                </script>
+                            </div>
+                        </div>
+                        <div class="col-md-4">
+                            <label class="control-label">可接受预约数量</label>
+                            <input id="num" type="number" class="form-control " required="required">
+                        </div>
+                        <div class="col-md-12">
+                            <center>
+                                <button class="btn btn-default btn-success" name="submit" id="submit"
+                                      onclick="sendmsg(document.getElementById('selectdoc').value,document.getElementById('date').value,document.getElementById('num').value)">
+                                    确认
+                                </button>
+                            </center>
+                        </div>
+                    </div>
+
+                    <div class="clearfix"></div>
+
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- register -->
+
+    {{ block.super }}
+{% endblock %}

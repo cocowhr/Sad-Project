@@ -11,6 +11,7 @@
 	<link href='http://fonts.googleapis.com/css?family=Open+Sans:400,300,600,700,800' rel='stylesheet' type='text/css'>
 	<link href='http://fonts.googleapis.com/css?family=Libre+Baskerville:400,700' rel='stylesheet' type='text/css'>
 	<script src="https://cdn.bootcss.com/jquery/2.1.4/jquery.min.js"></script>
+	<link rel="stylesheet" href="{% static 'css/flexslider.css' %}" type="text/css" media="screen" />
 	<script src="{% static 'js/simpleCart.min.js' %}"> </script>
 	<script src="https://cdn.bootcss.com/bootstrap/3.3.5/js/bootstrap.min.js"> </script>
 	<script src="https://cdn.bootcss.com/bootstrap/2.3.1/js/bootstrap-collapse.min.js"> </script>
@@ -22,7 +23,7 @@
 	{% block headjs %}{% endblock %}	
 </head>
 <body>
-	{% include "show/header.html" %}
+	{% include "show/bkstg_header.html" %}
 	<div class="content">
 	    {% block body %}{% endblock %}
 	</div>

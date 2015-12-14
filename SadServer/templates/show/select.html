@@ -3,28 +3,42 @@
 
 {% block headjs %}
     <script type="text/javascript">
+        function submit_order() {
+            $("#order_success").fadeIn();
+            setTimeout(function () {
+                window.location = "{% url 'show.views.index' %}";
+            }, 2000);
+        }
         $(document).ready(function () {
-            $('#hospital').addClass('active');
+            $('#listpage').addClass('active');
+            $("#order_success").hide();
+            $("#order_fail").hide();
+            $('.mydate').change(function(){
+               alert( $(this).attr('name'))
+            });
         });
     </script>
     <script type="text/javascript">
-        function sendmsg(hospital, department, doctor,price, date) {
+        function sendmsg(hospital, department, doctor, price, date, date2) {
             $.post('{% url 'api.views.appoint' %}', {
                 hospital: (hospital),
                 department: (department),
                 doctor: (doctor),
                 price: (price),
                 appointment_date: (date),
+                date2: date2,
             }, function (result) {
                 if (result.success) {
-                    console.log(result);
+                    submit_order()
                 }
                 if (result.fail) {
-                    console.log(result);
+                    $("#order_fail").fadeIn();
                 }
             });
         }
+
     </script>
+
 {% endblock %}
 
 {% block headcss %}
@@ -43,7 +57,8 @@
 
     <div class="row">
         <div class="col-md-10 col-md-offset-1">
-
+            <div class="alert alert-success text-center" role="alert" id="order_success">预约成功！请及时支付并打印订单。</div>
+            <div class="alert alert-warning text-center" role="alert" id="order_fail">预约失败！请重新预约</div>
             <div class="panel-group" id="accordion" role="tablist" aria-multiselectable="true">
 
                 {% for dept in departments %}
@@ -67,20 +82,22 @@
                                         <th>姓名</th>
                                         <th>职称</th>
                                         <th>挂号费</th>
-                                        <th>就诊时间选择</th>
+                                        <th colspan="2">就诊时间选择</th>
+                                        <th>该时段可预约数</th>
                                         <th>预约</th>
                                     </tr>
                                     </thead>
                                     <tbody>
                                     {% for doctor in dept.doctors %}
                                         <tr>
-                                            <td>{{ doctor.name }}</td>
-                                            <td>{{ doctor.rank }}</td>
-                                            <td>{{ doctor.price }}</td>
+                                            <td width="15%">{{ doctor.name }}</td>
+                                            <td width="15%">{{ doctor.rank }}</td>
+                                            <td width="15%">{{ doctor.price }}</td>
 
-                                            <td>
+                                            <td width="20%">
                                                 <div class="input-append date form_datetime row">
-                                                    <input name="appointdate" size="16" type="text"
+                                                    <input class="mydate"  name="appointdate" size="16"
+                                                           type="text"
                                                            data-format="yyyy-MM-dd" value=""
                                                            readonly>
                                                     <span class="add-on"><button class="btn btn-default btn-warning">
@@ -95,9 +112,17 @@
                                                     </script>
                                                 </div>
                                             </td>
-                                            <td>
+                                            <td width="10%">
+                                                <select name="date2" class="form-control" id="date_2">
+                                                    <option value="上午">上午</option>
+                                                    <option value="下午">下午</option>
+                                                </select>
+                                            </td>
+                                            <td id="limit" width="10%">{{ doctor.limit }}</td>
+                                            <td width="15%">
                                                 <button class="btn btn-default btn-success" name="submit" id="submit"
-                                                        onclick="sendmsg('{{ hospitalid }}','{{ dept.id }}','{{ doctor.id }}','{{ doctor.price }}',document.getElementsByName('appointdate')[{{ doctor.tag }}].value)">
+                                                        onclick="sendmsg('{{ hospitalid }}','{{ dept.id }}','{{ doctor.id }}','{{ doctor.price }}',
+                                                                document.getElementsByName('appointdate')[{{ doctor.tag }}].value,document.getElementsByName('date2')[{{ doctor.tag }}].value)">
                                                     确认预约
                                                 </button>
                                             </td>

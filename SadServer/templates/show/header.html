@@ -13,9 +13,10 @@
                     <span class="menu"> </span>
                     <ul>
                         <li id="homepage"><a href="{% url 'show.views.index' %}">主页</a></li>
-                        <li id="hospital"><a href="{% url 'show.views.hospitals' %}">预约</a></li>
+                        {% if not name%}
                         <li id="loginpage"><a href="{% url 'show.views.login' %}">登录</a></li>
-                        <li id="contactpage"><a href="{% url 'show.views.contact' %}">联系</a></li>
+                        {% endif %}
+                        <li id="contactpage"><a href="{% url 'api.views.list' %}">我的预约</a></li>
                         <div class="clearfix"></div>
                     </ul>
                     <!-- script-for-nav -->
@@ -30,14 +31,24 @@
                 </div>
                 <div class="header-right1">
                     <div class="cart box_1">
-                        <a href="{% url 'api.views.list'%}" >
-                            <h3><span class="simpleCart_total"> ￥0.00 </span> (<span id="simpleCart_quantity"
-                                                                                     class="simpleCart_quantity"> 0 </span>
-                                items)<img src="{% static 'images/bag.png' %}" alt=""></h3>
-                        </a>
-
-                        <p><a href="javascript:;" class="simpleCart_empty">取消所有预约</a></p>
-
+                        {% if name %}
+                            <p>
+                            <table>
+                                <tr>
+                                    <td>{{ name }}</td>
+                                    <td>
+                                        <a href="{% url 'api.views.logout' %}">
+                                            <button class="btn btn-default">注销</button>
+                                        </a>
+                                    </td>
+                                </tr>
+                            </table></p>
+                        {% else %}
+                            <a href="{% url 'show.views.register' %}">
+                                <button id="new_user" class="btn btn-default">注册新用户
+                                </button>
+                            </a>
+                        {% endif %}
                         <div class="clearfix"></div>
                     </div>
                 </div>

@@ -1,6 +1,6 @@
 from django.shortcuts import render
 from django.views.decorators.csrf import csrf_exempt
-from django.http import HttpResponse, Http404
+from django.http import HttpResponse, JsonResponse
 from api.models import *
 import urllib.parse
 import json
@@ -10,11 +10,8 @@ import time
 def register(request):
     name = request.POST['name']
     idcard = request.POST['idcard']
-    contact = request.POST['contact']
+    realname = request.POST['realname']
     password = request.POST['password']
-    # 密码检验如何弄？
-
-    # 判断用户名是否被注册
     try:
         context = {}
         context['key'] = "value"
@@ -22,8 +19,11 @@ def register(request):
         return render(request, 'show/hello.html', context)
         # 判断用户名是否被注册
     except ObjectDoesNotExist:
-        User.objects.create(name=name, passwd=password, contact=contact)
-        return render(request, 'show/index.html', context)
+        User.objects.create(name=name, passwd=password, idcard=idcard, realname=realname)
+        try:
+            context['name'] = request.session['username']
+        finally:
+            return render(request, 'show/index.html', context)
 
 
 @csrf_exempt
@@ -34,13 +34,32 @@ def login(request):
     try:
         context = {}
         user = User.objects.get(name=name)
-        if (user.passwd != password):
-            return render(request, 'show/login.html', context)
+        if (user.passwd != password or user.verify == False):
+            try:
+                context['name'] = request.session['username']
+            finally:
+                return render(request, 'show/login.html', context)
         request.session['username'] = name
-        return render(request, 'show/index.html', context)
-        # 判断用户名是否被注册
+        try:
+            context['name'] = request.session['username']
+        finally:
+            return render(request, 'show/index.html', context)
+            # 判断用户名是否被注册
     except ObjectDoesNotExist:
-        return render(request, 'show/register.html', context)
+        try:
+            context['name'] = request.session['username']
+        finally:
+            return render(request, 'show/register.html', context)
+
+
+@csrf_exempt
+def logout(request):
+    del request.session['username']
+    context = []
+    try:
+        context['name'] = request.session['username']
+    finally:
+        return render(request, 'show/index.html', context)
 
 
 @csrf_exempt
@@ -49,16 +68,22 @@ def searchhospname(request):
     hosplist = Hospital.objects.filter(name__contains=hospname)
     if hosplist.__len__() > 0:
         context = {}
-        context['hospitalList'] = []
-        for hosp in hosplist:
-            hosp1 = {}
-            hosp1['id'] = hosp.id
-            hosp1['name'] = hosp.name
-            hosp1['loc'] = hosp.address
-            hosp1['intro'] = hosp.contact
-            context['hospitalList'].append(hosp1)
-        return render(request, 'show/hospitals.html', context)
-        # 判断用户名是否被注册
+        try:
+            context['name'] = request.session['username']
+        finally:
+            context['hospitalList'] = []
+            for hosp in hosplist:
+                hosp1 = {}
+                hosp1['id'] = hosp.id
+                hosp1['name'] = hosp.name
+                hosp1['loc'] = hosp.address
+                hosp1['intro'] = hosp.contact
+                context['hospitalList'].append(hosp1)
+            try:
+                context['name'] = request.session['username']
+            finally:
+                return render(request, 'show/hospitals.html', context)
+                # 判断用户名是否被注册
     else:
         context = {}
         return render(request, 'show/hello.html', context)
@@ -70,13 +95,13 @@ def searchdepartment(request, hospitalid):
     context = {}
     context['hospitalid'] = hospitalid
     context['departments'] = []
+    i = 0
     for dep in deplist:
         dep1 = {}
         dep1['id'] = dep.id
         dep1['name'] = dep.name
         dep1['doctors'] = []
         doclist = Doctor.objects.filter(department=dep.id)
-        i = 0
         for doc in doclist:
             doc1 = {}
             doc1['id'] = doc.id
@@ -85,15 +110,20 @@ def searchdepartment(request, hospitalid):
             doc1['name'] = doc.name
             doc1['rank'] = doc.rank
             doc1['price'] = doc.fee
+            doc1['limit'] = doc.limit
             dep1['doctors'].append(doc1)
         context['departments'].append(dep1)
-    return render(request, 'show/select.html', context)
+    try:
+        context['name'] = request.session['username']
+    finally:
+        return render(request, 'show/select.html', context)
 
 
 @csrf_exempt
-def showlist(username):
+def showlist(request):
+    username = request.session.get('username')
     user = User.objects.get(name=username)
-    appointlist = Appointment.objects.filter(user=user, status=0)
+    appointlist = Appointment.objects.filter(user=user)
     context = {}
     context['unpayedOrders'] = []
     for appoint in appointlist:
@@ -105,12 +135,12 @@ def showlist(username):
         #   appoint1['deptid'] = appoint.department.id
         appoint1['dept'] = appoint.department.name
         appoint1['price'] = appoint.fare
-        appoint1['date'] = appoint.appointment_date
+        appoint1['date'] = appoint.appointment_date.strftime('%Y-%m-%d') + appoint.date2
         appoint1['doctor'] = appoint.doctor.name
         appoint1['rank'] = appoint.doctor.rank
         context['unpayedOrders'].append(appoint1)
     context['payedOrders'] = []
-    paylist=Order.objects.filter(user=user)
+    paylist = Order.objects.filter(user=user)
     # paylist = Appointment.objects.filter(user=user, status=1)
     for pay in paylist:
         pay1 = {}
@@ -121,17 +151,19 @@ def showlist(username):
         #   pay1['deptid'] = appoint.department.id
         pay1['dept'] = pay.department.name
         pay1['price'] = pay.fare
-        pay1['date'] = pay.appointment_date
+        pay1['date'] = pay.appointment_date.strftime('%Y-%m-%d') + pay.date2
         pay1['doctor'] = pay.doctor.name
         pay1['rank'] = pay.doctor.rank
         context['payedOrders'].append(pay1)
-    return context
+    try:
+        context['name'] = username
+    finally:
+        return context
 
 
 @csrf_exempt
 def list(request):
-    username = request.session.get('username')
-    context = showlist(username)
+    context = showlist(request)
     return render(request, 'show/list.html', context)
 
 
@@ -140,8 +172,7 @@ def cancelappoint(request, appointid):
     appoint = Appointment.objects.get(id=appointid)
     context = {}
     Appointment.delete(appoint)
-    username = request.session.get('username')
-    context = showlist(username)
+    context = showlist(request)
     return render(request, 'show/list.html', context)
 
 
@@ -149,18 +180,18 @@ def cancelappoint(request, appointid):
 def payappoint(request, appointid):
     appoint = Appointment.objects.get(id=appointid)
     context = {}
-    order=Order()
-    order.hospital=appoint.hospital
-    order.doctor=appoint.doctor
-    order.department=appoint.department
-    order.user=appoint.user
-    order.appointment_date=appoint.appointment_date
-    order.create_date=appoint.create_date
-    order.fare=appoint.fare
+    order = Order()
+    order.hospital = appoint.hospital
+    order.doctor = appoint.doctor
+    order.department = appoint.department
+    order.user = appoint.user
+    order.appointment_date = appoint.appointment_date
+    order.date2 = appoint.date2
+    order.create_date = appoint.create_date
+    order.fare = appoint.fare
     order.save()
     Appointment.delete(appoint)
-    username = request.session.get('username')
-    context = showlist(username)
+    context = showlist(request)
     return render(request, 'show/list.html', context)
 
 
@@ -173,22 +204,170 @@ def appoint(request):
     username = request.session.get('username')
     price = request.POST['price']
     user = User.objects.get(name=username)
+    date2 = request.POST['date2']
     # user=User.objects.get(id=1)
     appointment_date = request.POST['appointment_date']
     doctor = Doctor.objects.get(id=doctorid)
-    appointlist = Appointment.objects.filter(user=user, department=department)
-    if appointlist.__len__() == 0:
-        context = {}
-        appoint = Appointment()
-        appoint.user = user
-        appoint.fare = price
-        appoint.doctor = doctor
-        appoint.hospital = Hospital.objects.get(id=hospital)
-        appoint.department = Department.objects.get(id=department)
-        appoint.appointment_date = appointment_date
-        appoint.save()
-    return render(request, 'show/list.html', context)
+    appointlist = Appointment.objects.filter(user=user)
+    if appointlist.__len__() <= 3:
+        appointlist = Appointment.objects.filter(user=user, department=department)
+        if appointlist.__len__() == 0:
+            context = {}
+            appoint = Appointment()
+            appoint.user = user
+            appoint.fare = price
+            appoint.doctor = doctor
+            appoint.date2 = date2
+            appoint.hospital = Hospital.objects.get(id=hospital)
+            appoint.department = Department.objects.get(id=department)
+            appoint.appointment_date = appointment_date
+            appoint.save()
+            return JsonResponse({'success': True})
+        else:
+            return JsonResponse({'fail': True})
+    else:
+        return JsonResponse({'fail': True})
 
+
+@csrf_exempt
+def adminlist(context):
+    userlist = User.objects.filter(verify=False)
+    context['userlist'] = []
+    i = 0
+    for user in userlist:
+        user1 = {}
+        user1['id'] = user.id
+        user1['tag'] = i
+        i = i + 1
+        user1['name'] = user.name
+        user1['realname'] = user.realname
+        user1['idcard'] = user.idcard
+        context['userlist'].append(user1)
+    return context
+
+
+def adminprelogin(request):
+    context = {}
+    try:
+        context['name'] = request.session['username']
+        user = User.objects.get(name=request.session['username'])
+        if user.admin:
+            adminlist(context)
+            return render(request, 'show/backstage.html', context)
+    except:
+        return render(request, 'show/bkstg_login.html', context)
+
+
+@csrf_exempt
+def adminlogin(request):
+    name = request.POST['name']
+    password = request.POST['password']
+    # 判断用户名是否被注册
+    try:
+        context = {}
+        user = User.objects.get(name=name)
+        if (user.passwd != password):
+            try:
+                context['name'] = request.session['username']
+            finally:
+                return render(request, 'show/bkstg_login.html', context)
+        if (user.admin != True):
+            try:
+                context['name'] = request.session['username']
+            finally:
+                return render(request, 'show/bkstg_login.html', context)
+        request.session['username'] = name
+        try:
+            context['name'] = request.session['username']
+        finally:
+            context = adminlist(context)
+            return render(request, 'show/backstage.html', context)
+            # 判断用户名是否被注册
+    except ObjectDoesNotExist:
+        try:
+            context['name'] = request.session['username']
+        finally:
+            return render(request, 'show/bkstg_login.html', context)
+
+
+@csrf_exempt
+def rejectuser(request, userid):
+    user = User.objects.get(id=userid)
+    context = {}
+    User.delete(user)
+    context = adminlist(context)
+    return render(request, 'show/backstage.html', context)
+
+
+@csrf_exempt
+def admituser(request):
+    userid = request.POST['userid']
+    credit = request.POST['credit']
+    user = User.objects.get(id=userid)
+    context = {}
+    user.verify = True
+    user.credit = credit
+    user.save()
+    return JsonResponse({'success': True})
+
+
+@csrf_exempt
+def info(request):
+    context = {}
+    hospitallist = Hospital.objects.all()
+    context['hospitalList'] = []
+    for hosp in hospitallist:
+        hosp1 = {}
+        hosp1['id'] = hosp.id
+        hosp1['name'] = hosp.name
+        context['hospitalList'].append(hosp1)
+    return render(request, 'show/info.html', context)
+
+
+@csrf_exempt
+def getdept(request):
+    context = {}
+    hospital = request.POST['hospital']
+    deptlist = Department.objects.filter(hospital=hospital)
+    context['deptlist'] = []
+    for dept in deptlist:
+        dept1 = {}
+        dept1['id'] = dept.id
+        dept1['name'] = dept.name
+        context['deptlist'].append(dept1)
+    return JsonResponse({'success': True, 'context': context})
+
+
+@csrf_exempt
+def getdoc(request):
+    context = {}
+    dept = request.POST['dept']
+    doclist = Doctor.objects.filter(department=dept)
+    context['doclist'] = []
+    for doc in doclist:
+        doc1 = {}
+        doc1['id'] = doc.id
+        doc1['name'] = doc.name
+        context['doclist'].append(doc1)
+    return JsonResponse({'success': True, 'context': context})
+
+@csrf_exempt
+def setmax(request):
+    context = {}
+    doctor = request.POST['doctor']
+    date = request.POST['date']
+    num = request.POST['num']
+    maxlist = Maxium_Appointment.objects.filter(doctor=doctor,date=date)
+    if maxlist.__len__() == 0:
+        context = {}
+        maxapp = Maxium_Appointment()
+        maxapp.doctor = Doctor.objects.get(id=doctor)
+        maxapp.date = date
+        maxapp.number=num
+        maxapp.save()
+        return JsonResponse({'success': True})
+    else:
+        return JsonResponse({'fail': True})
 
 # Android
 def m_decode(message):  # json字符串解码
@@ -335,7 +514,7 @@ def searchdepartmentAndroid(request):
 @csrf_exempt
 def showlistAndroid(user):
     user = User.objects.get(name=user)
-    appointlist = Appointment.objects.filter(user=user, status=0)
+    appointlist = Appointment.objects.filter(user=user)
     if appointlist.__len__() > 0:
         rresponse = dict()
         rresponse['unpayedOrders'] = []
@@ -346,6 +525,7 @@ def showlistAndroid(user):
             #   appoint1['hospitalid'] = appoint.hospital.id
             #   appoint1['doctorid'] = appoint.doctor.id
             #   appoint1['deptid'] = appoint.department.id
+            appoint['date2'] = appoint.date2
             appoint1['dept'] = appoint.department.name
             appoint1['price'] = appoint.fare
             appoint1['date'] = appoint.appointment_date
@@ -353,7 +533,7 @@ def showlistAndroid(user):
             appoint1['rank'] = appoint.doctor.rank
             rresponse['unpayedOrders'].append(appoint1)
         rresponse['payedOrders'] = []
-        paylist = Appointment.objects.filter(user=user, status=1)
+        paylist = Order.objects.filter(user=user)
         for pay in paylist:
             pay1 = {}
             pay1['appointid'] = pay.id
@@ -363,6 +543,7 @@ def showlistAndroid(user):
             #   pay1['deptid'] = appoint.department.id
             pay1['dept'] = pay.department.name
             pay1['price'] = pay.fare
+            pay1['date2'] = pay.date2
             pay1['date'] = pay.appointment_date
             pay1['doctor'] = pay.doctor.name
             pay1['rank'] = pay.doctor.rank
@@ -438,6 +619,7 @@ def payappointAndroid(request):
             jresponse = json.dumps(rresponse)
             return HttpResponse(jresponse)
 
+
 @csrf_exempt
 def appointAndroid(request):
     if request.method == 'POST':
@@ -453,8 +635,9 @@ def appointAndroid(request):
         doctorid = decode['doctorid']
         username = decode['username']
         price = decode['price']
+        date2 = decode['date2']
         user = User.objects.get(name=username)
-        appointment_date =decode['date']
+        appointment_date = decode['date']
         doctor = Doctor.objects.get(id=doctorid)
         appointlist = Appointment.objects.filter(user=user, doctor=doctor)
         if appointlist.__len__() == 0:
@@ -462,6 +645,7 @@ def appointAndroid(request):
             appoint.user = user
             appoint.fare = price
             appoint.doctor = doctor
+            appoint.date2 = date2
             appoint.hospital = Hospital.objects.get(id=hospital)
             appoint.department = Department.objects.get(id=department)
             appoint.appointment_date = appointment_date

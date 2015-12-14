@@ -7,26 +7,6 @@ $(document).ready(function(){
 	$('#loginpage').addClass('active');
 });
 </script>
-<script type="text/javascript">
-function check()
-{
-	var id = document.getElementById('input_id');
-	var password = document.getElementById('input_password');
-	if(id.value == "")
-	{
-		alert("请输入用户名");
-		id.focus();
-		return false;
-	}
-	else if(input_password.value == "")
-	{
-		alert("请输入密码");
-		password.focus();
-		return false;
-	}
-	return true;
-}
-</script>
 {% endblock %}
 
 {% block body %}
