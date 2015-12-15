@@ -698,6 +698,7 @@ def mobile_info(request):
         hosp1 = dict()
         hosp1['id'] = hosp.id
         hosp1['name'] = hosp.name
+        hosp1['city'] = hosp.city
         hos_single_info = json.dumps(hosp1)     # 将单个医院的属性转为json
         info[str(count)] = hos_single_info      # 将单个医院实体加入医院列表信息字典
     j_info = json.dumps(info)                   # 将医院列表转为json
