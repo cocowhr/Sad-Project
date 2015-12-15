@@ -5,18 +5,18 @@ from django.contrib import admin
 
 # 一切以mobile开头的url pattern均指向安卓客户端专用view
 urlpatterns = [
-    url(r'^register/$', 'api.views.register'),#
-    url(r'^login/$', 'api.views.login'),#
-    url(r'^adminlogin/$', 'api.views.adminlogin'),#
-    url(r'^adminprelogin/$', 'api.views.adminprelogin'),#
-    url(r'^logout/$', 'api.views.logout'),#
-    url(r'^searchhospname/$', 'api.views.searchhospname'),#
-    url(r'^appoint/$', 'api.views.appoint'),#
-    url(r'^searchdepartment/(?P<hospitalid>\d+)/$', 'api.views.searchdepartment'''),#
-    url(r'^cancelappoint/(?P<appointid>\d+)/$', 'api.views.cancelappoint'''),#
-    url(r'^payappoint/(?P<appointid>\d+)/$', 'api.views.payappoint'''),#
+    url(r'^register/$', 'api.views.register'),
+    url(r'^login/$', 'api.views.login'),
+    url(r'^adminlogin/$', 'api.views.adminlogin'),
+    url(r'^adminprelogin/$', 'api.views.adminprelogin'),
+    url(r'^logout/$', 'api.views.logout'),
+    url(r'^searchhospname/$', 'api.views.searchhospname'),
+    url(r'^appoint/$', 'api.views.appoint'),
+    url(r'^searchdepartment/(?P<hospitalid>\d+)/$', 'api.views.searchdepartment'''),
+    url(r'^cancelappoint/(?P<appointid>\d+)/$', 'api.views.cancelappoint'''),
+    url(r'^payappoint/(?P<appointid>\d+)/$', 'api.views.payappoint'''),
     url(r'^list/$', 'api.views.list'),
-    url(r'^info/$', 'api.views.info'),#
+    url(r'^info/$', 'api.views.info'),
     url(r'^rejectuser/(?P<userid>\d+)/$', 'api.views.rejectuser'''),
     url(r'^admituser/$', 'api.views.admituser'),
     url(r'^getdept/$', 'api.views.getdept'),
@@ -35,5 +35,6 @@ urlpatterns = [
     url(r'^mobile/payappoint/(?P<appointid>\d+)/$', 'api.views.mobile_payappoint'''),
     url(r'^mobile/appoint/$', 'api.views.mobile_appoint'),
     url(r'^mobile/info/$', 'api.views.mobile_info'),
+    url(r'^mobile/getdept/$', 'api.views.mobile_getdept'),
 
 ]
