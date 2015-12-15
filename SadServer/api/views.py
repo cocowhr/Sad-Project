@@ -1,10 +1,14 @@
+# -*- coding:utf-8 -*-
 from django.shortcuts import render
 from django.views.decorators.csrf import csrf_exempt
 from django.http import HttpResponse, JsonResponse
-from api.models import *
+from models import *
 import urllib.parse
 import json
 import time
+
+
+# view 分为网页版和移动版，移动版以mobile_开头
 
 
 # 安卓post解码用
@@ -245,7 +249,7 @@ def adminlist(context):
     context['userlist'] = []
     i = 0
     for user in userlist:
-        user1 = {}
+        user1 = dict()
         user1['id'] = user.id
         user1['tag'] = i
         i = i + 1
@@ -276,12 +280,12 @@ def adminlogin(request):
     try:
         context = {}
         user = User.objects.get(name=name)
-        if (user.passwd != password):
+        if user.passwd != password:
             try:
                 context['name'] = request.session['username']
             finally:
                 return render(request, 'show/bkstg_login.html', context)
-        if (user.admin != True):
+        if user.admin != True:
             try:
                 context['name'] = request.session['username']
             finally:
@@ -327,7 +331,7 @@ def info(request):
     hospitallist = Hospital.objects.all()
     context['hospitalList'] = []
     for hosp in hospitallist:
-        hosp1 = {}
+        hosp1 = dict()
         hosp1['id'] = hosp.id
         hosp1['name'] = hosp.name
         context['hospitalList'].append(hosp1)
@@ -341,7 +345,7 @@ def getdept(request):
     deptlist = Department.objects.filter(hospital=hospital)
     context['deptlist'] = []
     for dept in deptlist:
-        dept1 = {}
+        dept1 = dict()
         dept1['id'] = dept.id
         dept1['name'] = dept.name
         context['deptlist'].append(dept1)
@@ -355,7 +359,7 @@ def getdoc(request):
     doclist = Doctor.objects.filter(department=dept)
     context['doclist'] = []
     for doc in doclist:
-        doc1 = {}
+        doc1 = dict()
         doc1['id'] = doc.id
         doc1['name'] = doc.name
         context['doclist'].append(doc1)
@@ -363,26 +367,31 @@ def getdoc(request):
 
 @csrf_exempt
 def setmax(request):
-    context = {}
+    # context = {}
     doctor = request.POST['doctor']
     date = request.POST['date']
     num = request.POST['num']
     maxlist = Maxium_Appointment.objects.filter(doctor=doctor,date=date)
     if maxlist.__len__() == 0:
-        context = {}
+        # context = {}
         maxapp = Maxium_Appointment()
         maxapp.doctor = Doctor.objects.get(id=doctor)
         maxapp.date = date
-        maxapp.number=num
+        maxapp.number = num
         maxapp.save()
         return JsonResponse({'success': True})
     else:
         return JsonResponse({'fail': True})
 
 # Android
+# 安卓端只有普通用户界面，无管理员权限
+
+
+
+
 
 @csrf_exempt
-def loginandroid(request):
+def mobile_login(request):
     if request.method == 'POST':
         try:
             decode = m_decode(request.body)
@@ -418,7 +427,7 @@ def loginandroid(request):
 
 
 @csrf_exempt
-def register_page(request):
+def mobile_register(request):
     if request.method == 'POST':
         try:
             decode = m_decode(request.body)
@@ -446,7 +455,7 @@ def register_page(request):
 
 
 @csrf_exempt
-def searchhospnameAndroid(request):
+def mobile_searchhospname(request):
     if request.method == 'POST':
         try:
             decode = m_decode(request.body)
@@ -477,7 +486,7 @@ def searchhospnameAndroid(request):
 
 
 @csrf_exempt
-def searchdepartmentAndroid(request):
+def mobile_searchdepartment(request):
     if request.method == 'POST':
         try:
             decode = m_decode(request.body)
@@ -516,7 +525,7 @@ def searchdepartmentAndroid(request):
 
 
 @csrf_exempt
-def showlistAndroid(user):
+def mobile_showlist(user):
     user = User.objects.get(name=user)
     appointlist = Appointment.objects.filter(user=user)
     if appointlist.__len__() > 0:
@@ -563,7 +572,7 @@ def showlistAndroid(user):
 
 
 @csrf_exempt
-def listAndroid(request):
+def mobile_list(request):
     if request.method == 'POST':
         try:
             decode = m_decode(request.body)
@@ -578,7 +587,7 @@ def listAndroid(request):
 
 
 @csrf_exempt
-def cancelappointAndroid(request):
+def mobile_cancelappoint(request):
     if request.method == 'POST':
         try:
             decode = m_decode(request.body)
@@ -601,7 +610,7 @@ def cancelappointAndroid(request):
 
 
 @csrf_exempt
-def payappointAndroid(request):
+def mobile_payappoint(request):
     if request.method == 'POST':
         try:
             decode = m_decode(request.body)
@@ -625,7 +634,7 @@ def payappointAndroid(request):
 
 
 @csrf_exempt
-def appointAndroid(request):
+def mobile_appoint(request):
     if request.method == 'POST':
         try:
             decode = m_decode(request.body)
@@ -663,3 +672,35 @@ def appointAndroid(request):
             rresponse['status'] = 'failed'
             jresponse = json.dumps(rresponse)
             return HttpResponse(jresponse)
+
+
+def mobile_info(request):
+    """
+    返回信息结构为{status:状态参数, info:医院列表信息, count:医院总数}
+                医院列表信息{id:医院ID， name:医院名}
+    :param request: Http request
+    :return:    Http return
+    """
+    rresponse = dict()
+    try:
+        hospitallist = Hospital.objects.all()
+        rresponse['status'] = 'normal'      # 状态信息加入返回信息
+    except ObjectDoesNotExist:             # 数据库中无医院数据
+        rresponse['status'] = 'failed'
+        rresponse['info'] = 'No hospital'
+        jresponse = json.dumps(rresponse)
+        return HttpResponse(jresponse)
+    info = dict()
+    count = 0                               # 医院条目计数
+    for hosp in hospitallist:              # 遍历所有医院条目
+        count += 1
+        hosp1 = dict()
+        hosp1['id'] = hosp.id
+        hosp1['name'] = hosp.name
+        hos_single_info = json.dumps(hosp1)     # 将单个医院的属性转为json
+        info[str(count)] = hos_single_info      # 将单个医院实体加入医院列表信息字典
+    j_info = json.dumps(info)                   # 将医院列表转为json
+    rresponse['info'] = j_info                  # 医院列表实体加入返回信息
+    rresponse['count'] = count                  # 计数加入返回信息
+    jresponse = json.dumps(rresponse)
+    return HttpResponse(jresponse)

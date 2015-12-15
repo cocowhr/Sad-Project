@@ -10,6 +10,7 @@ class Hospital(models.Model):
     address = models.CharField(max_length=50)
     contact = models.CharField(max_length=50)
 
+
 class Department(models.Model):
     name = models.CharField(max_length=50)
     contact = models.CharField(max_length=50)
@@ -22,8 +23,9 @@ class User(models.Model):
     idcard = models.CharField(max_length=50)
     realname= models.CharField(max_length=10)
     verify = models.BooleanField(default=False)
-    credit=models.IntegerField(default=5)
+    credit = models.IntegerField(default=5)
     admin = models.BooleanField(default=False)
+
 
 class Doctor(models.Model):
     name = models.CharField(max_length=50)
@@ -35,6 +37,7 @@ class Doctor(models.Model):
     hospital = models.ForeignKey(Hospital)
     department = models.ForeignKey(Department)
     appoint_time = models.CharField(max_length=7)
+
 
 class Appointment(models.Model):
     appointment_date = models.DateField()
@@ -57,6 +60,7 @@ class Order(models.Model):
     department = models.ForeignKey(Department)
     doctor = models.ForeignKey(Doctor)
     user = models.ForeignKey(User)
+
 
 class Maxium_Appointment(models.Model):
     doctor = models.ForeignKey(Doctor)      # 医生
