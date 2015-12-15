@@ -1,143 +1,112 @@
-{% extends 'show/layout.html' %}
+{% extends 'layout.html' %}
 {% load staticfiles %}
 
-{% block headjs %}
-    <script type="text/javascript">
-        function submit_order() {
-            $("#order_success").fadeIn();
-            setTimeout(function () {
-                window.location = "{% url 'show.views.index' %}";
-            }, 2000);
-        }
-        $(document).ready(function () {
-            $('#listpage').addClass('active');
-            $("#order_success").hide();
-            $("#order_fail").hide();
-            $('.mydate').change(function(){
-               alert( $(this).attr('name'))
-            });
-        });
-    </script>
-    <script type="text/javascript">
-        function sendmsg(hospital, department, doctor, price, date, date2) {
-            $.post('{% url 'api.views.appoint' %}', {
-                hospital: (hospital),
-                department: (department),
-                doctor: (doctor),
-                price: (price),
-                appointment_date: (date),
-                date2: date2,
-            }, function (result) {
-                if (result.success) {
-                    submit_order()
-                }
-                if (result.fail) {
-                    $("#order_fail").fadeIn();
-                }
-            });
-        }
-
-    </script>
-
+{% block headjs%}
+<script type="text/javascript">
+function submit_order()
+{
+    $("#order_success").fadeIn();
+    setTimeout(function(){
+            window.location = "{% url 'view.index' %}";
+        },2000);
+}
+$(document).ready(function(){
+	$('#listpage').addClass('active');
+      $("#order_success").hide();
+      $(".date_btn").blur(function() {
+            msg = "doctor.name = " + $(this).parent().parent().parent().parent().attr('name') + "\nnew time :" + $(this).parent().parent().children('.date_1').val();
+            alert(msg);
+      });
+      $(".date_2").change(function() {
+            msg = "doctor.name = " + $(this).parent().parent().attr('name') + "\nnew time :" +$(this).val();
+            alert(msg);
+      });
+});
+</script>
 {% endblock %}
 
 {% block headcss %}
-    {% static 'css/docs.css' %}
 {% endblock %}
 
 {% block body %}
-    <!-- checkout -->
-    <div class="row">
-        <div class="col-md-10 col-md-offset-1">
-            <div class="page-header">
-                <h3>选择科室、医生、就诊时间</h3>
-            </div>
+<!-- checkout -->
+<div class="row">
+      <div class="col-md-10 col-md-offset-1">
+        <div class="page-header">
+            <h3>{{ hospital }} : 选择科室、医生、就诊时间</h3>
         </div>
+     </div>
+ </div>
+
+<div class="row">
+<div class="col-md-10 col-md-offset-1">
+
+<div class="alert alert-success" role="alert" id="order_success">预约成功！请及时支付并打印订单。</div>
+
+<div class="panel-group" id="accordion" role="tablist" aria-multiselectable="true">
+
+{% for dept in departments %}
+  <div class="panel panel-primary">
+    <div class="panel-heading" role="tab" id="heading{{ dept.name }}">
+      <h4 class="panel-title">
+        <a role="button" data-toggle="collapse" data-parent="#accordion" href="#collapse{{ dept.name }}" aria-expanded="true" aria-controls="collapse{{ dept.name }}">
+          {{ dept.name }}
+        </a>
+      </h4>
     </div>
-
-    <div class="row">
-        <div class="col-md-10 col-md-offset-1">
-            <div class="alert alert-success text-center" role="alert" id="order_success">预约成功！请及时支付并打印订单。</div>
-            <div class="alert alert-warning text-center" role="alert" id="order_fail">预约失败！请重新预约</div>
-            <div class="panel-group" id="accordion" role="tablist" aria-multiselectable="true">
-
-                {% for dept in departments %}
-                    <div class="panel panel-primary">
-                        <div class="panel-heading" role="tab" id="heading{{ dept.name }}">
-                            <h4 class="panel-title">
-                                <a role="button" data-toggle="collapse" data-parent="#accordion"
-                                   href="#collapse{{ dept.name }}" aria-expanded="true"
-                                   aria-controls="collapse{{ dept.name }}">
-                                    {{ dept.name }}
-                                </a>
-                            </h4>
-                        </div>
-
-                        <div id="collapse{{ dept.name }}" class="panel-collapse collapse" role="tabpanel"
-                             aria-labelledby="heading{{ dept.name }}">
-                            <div class="panel-body">
-                                <table class="table">
-                                    <thead>
-                                    <tr>
-                                        <th>姓名</th>
-                                        <th>职称</th>
-                                        <th>挂号费</th>
-                                        <th colspan="2">就诊时间选择</th>
-                                        <th>该时段可预约数</th>
-                                        <th>预约</th>
-                                    </tr>
-                                    </thead>
-                                    <tbody>
-                                    {% for doctor in dept.doctors %}
-                                        <tr>
-                                            <td width="15%">{{ doctor.name }}</td>
-                                            <td width="15%">{{ doctor.rank }}</td>
-                                            <td width="15%">{{ doctor.price }}</td>
-
-                                            <td width="20%">
-                                                <div class="input-append date form_datetime row">
-                                                    <input class="mydate"  name="appointdate" size="16"
-                                                           type="text"
-                                                           data-format="yyyy-MM-dd" value=""
-                                                           readonly>
-                                                    <span class="add-on"><button class="btn btn-default btn-warning">
-                                                        选择时间
-                                                    </button></span>
-                                                    <script type="text/javascript">
-                                                        $(function () {
-                                                            $('.date').datetimepicker({
-                                                                pickTime: false
-                                                            });
-                                                        });
-                                                    </script>
-                                                </div>
-                                            </td>
-                                            <td width="10%">
-                                                <select name="date2" class="form-control" id="date_2">
-                                                    <option value="上午">上午</option>
-                                                    <option value="下午">下午</option>
-                                                </select>
-                                            </td>
-                                            <td id="limit" width="10%">{{ doctor.limit }}</td>
-                                            <td width="15%">
-                                                <button class="btn btn-default btn-success" name="submit" id="submit"
-                                                        onclick="sendmsg('{{ hospitalid }}','{{ dept.id }}','{{ doctor.id }}','{{ doctor.price }}',
-                                                                document.getElementsByName('appointdate')[{{ doctor.tag }}].value,document.getElementsByName('date2')[{{ doctor.tag }}].value)">
-                                                    确认预约
-                                                </button>
-                                            </td>
-                                        </tr>
-                                    {% endfor %}
-                                    </tbody>
-                                </table>
-                            </div>
-                        </div>
-                    </div>
-                {% endfor %}
-            </div>
-        </div>
-
+    <div id="collapse{{ dept.name }}" class="panel-collapse collapse" role="tabpanel" aria-labelledby="heading{{ dept.name }}">
+      <div class="panel-body">
+        <table class="table">
+        	<thead>
+        		<tr>
+        			<th>姓名</th>
+        			<th>职称</th>
+        			<th>挂号费</th>
+        			<th colspan="2">就诊时间选择</th>
+                          <th>该时段可预约数</th>
+        			<th>预约</th>
+        		</tr>
+        	</thead>
+        	<tbody>
+        		{% for doctor in dept.doctors %}
+        		<tr name="{{ doctor.name }}">
+        			<td width="15%">{{ doctor.name }}</td>
+        			<td width="15%">{{ doctor.rank }}</td>
+        			<td width="15%">{{ doctor.price }}</td>
+        			
+				<td width="20%">
+				<div class="input-append date form_datetime row">
+					<input class="date_1" size="16" type="text" data-format="yyyy-MM-dd" id="date_1" value="" readonly required>
+					<span class="add-on"><button class="date_btn btn btn-default btn-warning">选择日期</button></span>
+				    	<script type="text/javascript">
+					  $(function() {
+					    $('.date').datetimepicker({
+					      pickTime: false
+					    });
+					  });
+					</script>
+				</div>
+				</td>
+                          <td width="10%">
+                            <select class="form-control date_2" id="date_2">
+                              <option value="上午">上午</option>
+                              <option value="下午">下午</option>
+                            </select>
+                          </td>
+                          <td width="10%">{{ doctor.slot }}</td>
+        			<td width="15%"><button class="btn btn-default btn-success" onclick="submit_order()">确认预约</button></td>
+        		</tr>
+        		{% endfor %}
+        	</tbody>
+        </table>
+      </div>
     </div>
+  </div>
+{% endfor %}
+</div>
+</div>
+
+</div>
 
     {{ block.super }}
 {% endblock %}
