@@ -392,6 +392,11 @@ def setmax(request):
 
 @csrf_exempt
 def mobile_login(request):
+    """
+    返回信息结构为{status:状态参数 username:用户名}
+    :param request: Http request
+    :return:    Http return
+    """
     if request.method == 'POST':
         try:
             decode = m_decode(request.body)
@@ -428,6 +433,11 @@ def mobile_login(request):
 
 @csrf_exempt
 def mobile_register(request):
+    """
+    返回信息结构为{status:状态参数}
+    :param request: Http request
+    :return:    Http return
+    """
     if request.method == 'POST':
         try:
             decode = m_decode(request.body)
@@ -456,6 +466,12 @@ def mobile_register(request):
 
 @csrf_exempt
 def mobile_searchhospname(request):
+    """
+    返回信息结构为{status:状态参数, hospitalList:医院列表信息}
+                医院列表信息{id:医院ID, name:医院名, loc:医院地址, intro:介绍}
+    :param request: Http request
+    :return:    Http return
+    """
     if request.method == 'POST':
         try:
             decode = m_decode(request.body)
@@ -487,6 +503,13 @@ def mobile_searchhospname(request):
 
 @csrf_exempt
 def mobile_searchdepartment(request):
+    """
+    返回信息结构为{status:状态参数, hospitalid:医院id, departments:部门列表信息}
+                部门列表信息{id:部门id, name:部门名, doctors:医生列表信息}
+                医生列表信息{id:医生ID, name:医生名, rank:医生职称, price:医生价格}
+    :param request: Http request
+    :return:    Http return
+    """
     if request.method == 'POST':
         try:
             decode = m_decode(request.body)
@@ -526,6 +549,15 @@ def mobile_searchdepartment(request):
 
 @csrf_exempt
 def mobile_showlist(user):
+    """
+    返回信息结构为{status:状态参数, UnpayedOrders:未付费订单列表, payedOrders:已付费订单列表}
+                未付费订单列表{appointid:订单id hospital:医院名 date2:预约日期 dept:部门名
+                                price:订单费用 date:下订单日期 doctor:医生名 rank:医生职称}
+                已付费订单列表{appointid:订单id hospital:医院名 date2:预约日期 dept:部门名
+                                price:订单费用 date:下订单日期 doctor:医生名 rank:医生职称}
+    :param request: user
+    :return:    Http return
+    """
     user = User.objects.get(name=user)
     appointlist = Appointment.objects.filter(user=user)
     if appointlist.__len__() > 0:
@@ -573,6 +605,11 @@ def mobile_showlist(user):
 
 @csrf_exempt
 def mobile_list(request):
+    """
+    返回信息结构为{status:状态参数}
+    :param request: Http request
+    :return:    Http return
+    """
     if request.method == 'POST':
         try:
             decode = m_decode(request.body)
@@ -588,6 +625,11 @@ def mobile_list(request):
 
 @csrf_exempt
 def mobile_cancelappoint(request):
+    """
+    返回信息结构为{status:状态参数}
+    :param request: Http request
+    :return:    Http return
+    """
     if request.method == 'POST':
         try:
             decode = m_decode(request.body)
@@ -611,6 +653,11 @@ def mobile_cancelappoint(request):
 
 @csrf_exempt
 def mobile_payappoint(request):
+    """
+    返回信息结构为{status:状态参数}
+    :param request: Http request
+    :return:    Http return
+    """
     if request.method == 'POST':
         try:
             decode = m_decode(request.body)
@@ -635,6 +682,11 @@ def mobile_payappoint(request):
 
 @csrf_exempt
 def mobile_appoint(request):
+    """
+    返回信息结构为{status:状态参数}
+    :param request: Http request
+    :return:    Http return
+    """
     if request.method == 'POST':
         try:
             decode = m_decode(request.body)
