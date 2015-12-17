@@ -2,7 +2,7 @@
 from django.shortcuts import render
 from django.views.decorators.csrf import csrf_exempt
 from django.http import HttpResponse, JsonResponse
-from models import *
+from api.models import *
 import urllib.parse
 import json
 import time
@@ -108,6 +108,7 @@ def searchdepartment(request, hospitalid):
     deplist = Department.objects.filter(hospital=hospitalid)
     context = {}
     context['hospitalid'] = hospitalid
+    context['hospital'] = Hospital.objects.get(id=hospitalid).name
     context['departments'] = []
     i = 0
     for dep in deplist:
@@ -365,17 +366,22 @@ def getdoc(request):
         context['doclist'].append(doc1)
     return JsonResponse({'success': True, 'context': context})
 
+
 @csrf_exempt
 def setmax(request):
     # context = {}
     doctor = request.POST['doctor']
+    hospital = request.POST['hospital']
+    department = request.POST['department']
     date = request.POST['date']
     num = request.POST['num']
-    maxlist = Maxium_Appointment.objects.filter(doctor=doctor,date=date)
+    maxlist = Maxium_Appointment.objects.filter(doctor=doctor, date=date)
     if maxlist.__len__() == 0:
         # context = {}
         maxapp = Maxium_Appointment()
         maxapp.doctor = Doctor.objects.get(id=doctor)
+        maxapp.hospital = Hospital.objects.get(id=hospital)
+        maxapp.department = Department.objects.get(id=department)
         maxapp.date = date
         maxapp.number = num
         maxapp.save()
@@ -383,11 +389,26 @@ def setmax(request):
     else:
         return JsonResponse({'fail': True})
 
-# Android
+
+@csrf_exempt
+def getmsg(request):
+    date = request.POST['date']
+    hospital = request.POST['hospital']
+    maxlist = Maxium_Appointment.objects.filter(date=date,hospital=hospital)
+    if maxlist.__len__() == 0:
+        return JsonResponse({'fail': True})
+    else:
+        context = {}
+        context['doclist'] = []
+        for doctormax in maxlist:
+            doctormax1 = dict()
+            doctormax1['doctorid'] = doctormax.doctor.id
+            doctormax1['max'] = doctormax.number
+            context['doclist'].append(doctormax1)
+        return JsonResponse({'success': True, 'context': context})
+
+ # Android
 # 安卓端只有普通用户界面，无管理员权限
-
-
-
 
 
 @csrf_exempt
@@ -685,25 +706,25 @@ def mobile_info(request):
     rresponse = dict()
     try:
         hospitallist = Hospital.objects.all()
-        rresponse['status'] = 'normal'      # 状态信息加入返回信息
-    except ObjectDoesNotExist:             # 数据库中无医院数据
+        rresponse['status'] = 'normal'  # 状态信息加入返回信息
+    except ObjectDoesNotExist:  # 数据库中无医院数据
         rresponse['status'] = 'failed'
         rresponse['info'] = 'No hospital'
         jresponse = json.dumps(rresponse)
         return HttpResponse(jresponse)
-    info = dict()                           # 医院列表
-    count = 0                               # 医院条目计数
-    for hosp in hospitallist:              # 遍历所有医院条目
+    info = dict()  # 医院列表
+    count = 0  # 医院条目计数
+    for hosp in hospitallist:  # 遍历所有医院条目
         count += 1
         hosp1 = dict()
         hosp1['id'] = hosp.id
         hosp1['name'] = hosp.name
         hosp1['city'] = hosp.city
-        hos_single_info = json.dumps(hosp1)     # 将单个医院的属性转为json
-        info[str(count)] = hos_single_info      # 将单个医院实体加入医院列表信息字典
-    j_info = json.dumps(info)                   # 将医院列表转为json
-    rresponse['info'] = j_info                  # 医院列表实体加入返回信息
-    rresponse['count'] = count                  # 计数加入返回信息
+        hos_single_info = json.dumps(hosp1)  # 将单个医院的属性转为json
+        info[str(count)] = hos_single_info  # 将单个医院实体加入医院列表信息字典
+    j_info = json.dumps(info)  # 将医院列表转为json
+    rresponse['info'] = j_info  # 医院列表实体加入返回信息
+    rresponse['count'] = count  # 计数加入返回信息
     jresponse = json.dumps(rresponse)
     return HttpResponse(jresponse)
 
@@ -716,11 +737,11 @@ def mobile_getdept(request):
     :param request:
     :return:
     """
-    decode = m_decode(request.body)     # request内容由json解码为dict
+    decode = m_decode(request.body)  # request内容由json解码为dict
     rresponse = dict()
     hospital = decode['hospital']
     deptlist = Department.objects.filter(hospital=hospital)
-    info = dict()                           # 部门列表
+    info = dict()  # 部门列表
     count = 0
     rresponse['status'] = 'normal'
     for dept in deptlist:
@@ -728,11 +749,11 @@ def mobile_getdept(request):
         dept1 = dict()
         dept1['id'] = dept.id
         dept1['name'] = dept.name
-        j_dept1 = json.dumps(dept1)       # 将单个部门的属性转为json
-        info[str(count)] = j_dept1          # 将单个部门加入部门列表字典
-    j_info = json.dumps(info)               # 将部门列表转为json
-    rresponse['info'] = j_info              # 部门列表加入返回信息
-    rresponse['count'] = count              # 计数加入返回信息
+        j_dept1 = json.dumps(dept1)  # 将单个部门的属性转为json
+        info[str(count)] = j_dept1  # 将单个部门加入部门列表字典
+    j_info = json.dumps(info)  # 将部门列表转为json
+    rresponse['info'] = j_info  # 部门列表加入返回信息
+    rresponse['count'] = count  # 计数加入返回信息
     jresponse = json.dumps(rresponse)
     return HttpResponse(jresponse)
 
@@ -745,21 +766,21 @@ def mobile_getdoc(request):
     :param request:
     :return:
     """
-    decode = m_decode(request.body)     # request内容由json解码为dict
+    decode = m_decode(request.body)  # request内容由json解码为dict
     rresponse = dict()
     dept = decode['dept']
     doclist = Doctor.objects.filter(department=dept)
-    info = dict()                           # 医生列表
+    info = dict()  # 医生列表
     count = 0
     rresponse['status'] = 'normal'
     for doc in doclist:
         doc1 = dict()
         doc1['id'] = doc.id
         doc1['name'] = doc.name
-        j_doc1 = json.dumps(doc1)           # 将单个医生的属性转为json
-        info[str(count)] = j_doc1           # 将单个医生加入部门列表字典
-    j_info = json.dumps(info)               # 将医生列表转为json
-    rresponse['info'] = j_info              # 医生列表加入返回信息
-    rresponse['count'] = count              # 计数加入返回信息
+        j_doc1 = json.dumps(doc1)  # 将单个医生的属性转为json
+        info[str(count)] = j_doc1  # 将单个医生加入部门列表字典
+    j_info = json.dumps(info)  # 将医生列表转为json
+    rresponse['info'] = j_info  # 医生列表加入返回信息
+    rresponse['count'] = count  # 计数加入返回信息
     jresponse = json.dumps(rresponse)
     return HttpResponse(jresponse)

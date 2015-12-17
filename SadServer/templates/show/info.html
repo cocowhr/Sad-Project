@@ -81,9 +81,11 @@
         }
     </script>
     <script type="text/javascript">
-        function sendmsg(doctor, date, num) {
+        function sendmsg(doctor, hospital, department, date, num) {
             $.post('{% url 'api.views.setmax' %}', {
                 doctor: (doctor),
+                hospital: (hospital),
+                department: (department),
                 date: (date),
                 num: (num),
             }, function (result) {
@@ -121,7 +123,7 @@
                             {% endfor %}
                         </select>
                     </div>
-                    <div class="col-md-2" >
+                    <div class="col-md-2">
                         <select id="selectdept" class="form-control">
                         </select>
                     </div>
@@ -167,7 +169,7 @@
                         <div class="col-md-12">
                             <center>
                                 <button class="btn btn-default btn-success" name="submit" id="submit"
-                                      onclick="sendmsg(document.getElementById('selectdoc').value,document.getElementById('date').value,document.getElementById('num').value)">
+                                        onclick="sendmsg(document.getElementById('selectdoc').value,document.getElementById('selecthosp').value,document.getElementById('selectdept').value,document.getElementById('date').value,document.getElementById('num').value)">
                                     确认
                                 </button>
                             </center>

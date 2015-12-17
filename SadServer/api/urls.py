@@ -22,10 +22,11 @@ urlpatterns = [
     url(r'^getdept/$', 'api.views.getdept'),
     url(r'^getdoc/$', 'api.views.getdoc'),
     url(r'^setmax/$', 'api.views.setmax'),
+    url(r'^getmsg/$', 'api.views.getmsg'),
     # Android
     # 以下url均以mobile/开头
     url(r'^mobile/login/$', 'api.views.mobile_login'),
-    url(r'^mobile/login/$', 'django.contrib.auth.views.login'),
+    # url(r'^mobile/login/$', 'django.contrib.auth.views.login'),
     url(r'^mobile/register/$', 'api.views.mobile_register'),
     # url(r'^logout/$', 'api.views.logout'),    # 暂时无法确定移动端的logout如何实现，可由客户端更改变量实现
     url(r'^mobile/searchhospname/$', 'api.views.mobile_searchhospname'),

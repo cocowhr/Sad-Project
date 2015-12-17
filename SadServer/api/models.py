@@ -21,7 +21,7 @@ class User(models.Model):
     name = models.CharField(max_length=10)
     passwd = models.CharField(max_length=6)
     idcard = models.CharField(max_length=50)
-    realname= models.CharField(max_length=10)
+    realname = models.CharField(max_length=10)
     verify = models.BooleanField(default=False)
     credit = models.IntegerField(default=5)
     admin = models.BooleanField(default=False)
@@ -33,7 +33,7 @@ class Doctor(models.Model):
     fee = models.IntegerField()
     gender = models.CharField(max_length=6)
     contact = models.CharField(max_length=50)
-    limit= models.IntegerField(default=0)
+    limit = models.IntegerField(default=0)
     hospital = models.ForeignKey(Hospital)
     department = models.ForeignKey(Department)
     appoint_time = models.CharField(max_length=7)
@@ -41,7 +41,7 @@ class Doctor(models.Model):
 
 class Appointment(models.Model):
     appointment_date = models.DateField()
-    date2=models.CharField(max_length=6)
+    date2 = models.CharField(max_length=6)
     fare = models.FloatField()
     create_date = models.DateField(auto_now=True)
     hospital = models.ForeignKey(Hospital)
@@ -52,7 +52,7 @@ class Appointment(models.Model):
 
 class Order(models.Model):
     appointment_date = models.DateField()
-    date2=models.CharField(max_length=6)
+    date2 = models.CharField(max_length=6)
     pay_date = models.DateField(auto_now=True)
     fare = models.FloatField()
     create_date = models.DateField()
@@ -63,6 +63,8 @@ class Order(models.Model):
 
 
 class Maxium_Appointment(models.Model):
-    doctor = models.ForeignKey(Doctor)      # 医生
-    date = models.DateField()              # 日期
-    number = models.IntegerField(default=0)           # 当天的最大预约人数
+    hospital = models.ForeignKey(Hospital)
+    department = models.ForeignKey(Department)
+    doctor = models.ForeignKey(Doctor)  # 医生
+    date = models.DateField()  # 日期
+    number = models.IntegerField(default=0)  # 当天的最大预约人数
