@@ -1,4 +1,4 @@
-{% extends 'show/layout.html' %}
+{% extends 'layout.html' %}
 {% load staticfiles %}
 
 {% block headjs%}
@@ -11,32 +11,37 @@ $(document).ready(function(){
 
 {% block body %}
 <!-- register -->
-<div class="login-page">
-	<div class="container">
-		<div class="account_grid">
-			<div class="col-md-6 login-left wow fadeInLeft" data-wow-delay="0.4s">
-				<h3>新用户</h3>
-				<p>如果您还没有挂号平台账户，请注册一个再预约挂号。</p>
-				<a class="acount-btn" href="{% url 'show.views.register' %}">注册账户</a>
-			</div>
-			<div class="col-md-6 login-right wow fadeInRight" data-wow-delay="0.4s">
-				<h3>已注册用户</h3>
-				<p>如果您已注册，请直接登录。</p>
-				<form action="/api/login/" method="post" >
-					<div>
-						<span>用户名<label>*</label></span>
-						<input type="text" name="name" id = "input_username">
-					</div>
-					<div>
-						<span>密码<label>*</label></span>
-						<input type="password" name="password" id = "input_password">
-					</div>
-					<!-- <a class="forgot" href="#">忘记密码？</a> -->
-					<input type="submit" value="登录">
-				</form>
-			</div>	
-			<div class="clearfix"> </div>
+<div class="container">
+	<div class="row">
+	<div class="col-md-12">
+                <div class="page-header">
+                    <h3>登录</h3>
+                </div>
+             </div>
+             </div>
+	<div class="well row">
+		<div class="col-md-6 login-left wow fadeInLeft" data-wow-delay="0.4s">
+			<h3>新用户</h3>
+			<p>如果您还没有挂号平台账户，请注册一个再预约挂号。</p>
+			<button class="btn btn-lg btn-primary" onclick="window.location={% url 'view.register' %}">注册账户</button>
 		</div>
+		<div class="col-md-6 login-right wow fadeInRight" data-wow-delay="0.4s">
+			<h3>已注册用户</h3>
+			<p>如果您已注册，请直接登录。</p>
+			<form action="/api/login/" method="post" onSubmit="return check()">
+				<div class="form-group">
+			                    <label class="control-label">姓名</label>
+			                        <input class="form-control" type="text" id = "input_username" required>
+			             </div>
+				<div class="form-group">
+			                    <label class="control-label">密码</label>
+			                        <input class="form-control" type="password" id = "input_password" required>
+			             </div>
+				<!-- <a class="forgot" href="#">忘记密码？</a> -->
+				<button class="btn btn-lg btn-success" type="submit">登录</button>
+			</form>
+		</div>	
+		<div class="clearfix"> </div>
 	</div>
 </div>
 

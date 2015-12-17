@@ -1,10 +1,11 @@
-{% extends 'show/layout.html' %}
+{% extends 'layout.html' %}
 {% load staticfiles %}
 
 {% block headjs %}
 <script type="text/javascript">
 $(document).ready(function () {
     $('#loginpage').addClass('active');
+    $("#passwd_alert").hide();
 });
 </script>
 <script type="text/javascript">
@@ -14,45 +15,14 @@ function str(term)
 }
 function check()
 {
-    var name = document.getElementById('input_name');
-    var id = document.getElementById('input_id');
-    var realname = document.getElementById('input_realname');
     var password = document.getElementById('input_password');
     var password_confirm = document.getElementById('password_confirm');
-    if(name.value == "")
+    if(password.value != password_confirm.value)
     {
-        alert(str("姓名"));
-        name.focus();
-        return false;
-    }
-    else if(id.value == "")
-    {
-        alert(str("身份证号"));
-        id.focus();
-        return false;
-    }
-    else if(realname.value == "")
-    {
-        alert(str("真实名字"));
-        realname.focus();
-        return false;
-    }
-    else if(password.value == "")
-    {
-        alert(str("密码"));
-        password.focus();
-        return false;
-    }
-    else if(password_confirm.value == "")
-    {
-        alert("请再次输入密码！");
-
-        password_confirm.focus();
-        return false;
-    }
-    else if(password.value != password_confirm.value)
-    {
-        alert("密码不一致！");
+        $("#passwd_alert").fadeIn();
+        setTimeout(function(){
+            $("#passwd_alert").fadeOut();
+        },2000);
         password_confirm.focus();
         password_confirm.value="";
         return false;
@@ -64,45 +34,64 @@ function check()
 
 {% block body %}
 <!-- register -->
+<br /><br /><br />
+
 <div class="main-1">
     <div class="container">
-        <div class="register">
-            <form action="/api/register/" method="post" onSubmit="return check()">
-                <div class="register-top-grid">
-                    <h3>个人信息</h3>
-                    <div class="wow fadeInLeft" data-wow-delay="0.4s">
-                        <span>姓名<label>*</label></span>
-                        <input type="text" name="name" id = "input_name">
-                    </div>
-                    <div class="wow fadeInRight" data-wow-delay="0.4s">
-                        <span>身份证号<label>*</label></span>
-                        <input type="text" name="idcard" id = "input_id">
-                    </div>
-                    <div class="wow fadeInRight" data-wow-delay="0.4s">
-                        <span>真实名字<label>*</label></span>
-                        <input type="text" name="realname" id = "input_realname">
-                    </div>
+        <form action="/api/register/" method="post" onSubmit="return check()">
+        <div class="row">
+
+        <div class="col-md-10 col-md-offset-1">
+            
+            <div class="row">
+              <div class="col-md-10 col-md-offset-1">
+                <div class="page-header">
+                    <h3>注册新用户</h3>
                 </div>
-                <div class="clearfix"></div>
-                <div class="register-bottom-grid">
-                    <h3>密码设置</h3>
-                    <div class="wow fadeInLeft" data-wow-delay="0.4s">
-                        <span>输入密码<label>*</label></span>
-                        <input type="password" name="password" id = "input_password">
-                    </div>
-                    <div class="wow fadeInRight" data-wow-delay="0.4s">
-                        <span>确认密码<label>*</label></span>
-                        <input type="password" name="confirmpassword" id = "password_confirm">
-                    </div>
+             </div>
+         </div>
+            <div class="alert alert-danger " role="alert" id="passwd_alert">密码不一致!</div>
+            <div class="well row">            
+                <div class="form-group col-md-6">
+                    <label class="control-label">姓名</label>
+                        <input class="form-control" type="text" id = "input_name" required>
                 </div>
-                <div class="clearfix"></div>
-                <div class="register-but">
-                    <input type="submit" value="submit">
-                    <div class="clearfix"></div>
+                
+                <div class="form-group col-md-6">
+                    <label class="control-label">身份证号</label>
+                        <input class="form-control" type="text" id = "input_id" required>
                 </div>
-            </form>
+                <div class="form-group col-md-6">
+                    <label class="control-label">性别</label><br />
+                        <label class="radio-inline">
+                          <input type="radio" name="gender" id="gender_f" value="female" checked>女
+                        </label>
+                        <label class="radio-inline">
+                          <input type="radio" name="gender" id="gender_m" value="male">男
+                        </label>
+                </div>
+                <div class="form-group col-md-6">
+                    <label class="control-label">移动电话</label>
+                        <input class="form-control" type="text" id = "input_phone" required>
+                </div>
+                <div class="form-group col-md-6">
+                    <label class="control-label">设置密码</label>
+                        <input class="form-control" type="password" id = "input_password" required>
+                </div>
+                <div class="form-group col-md-6">
+                    <label class="control-label">确认密码</label>
+                        <input class="form-control" type="password" id = "password_confirm" required>
+                </div>
         </div>
     </div>
+        <div class="col-md-10 col-md-offset-1">
+            <p align="center"><button class="btn btn-lg btn-success">注册</button></p>
+        </div>
+    </div>
+
+            </form>
+            <br />
+        </div>
 </div>
 
 <!-- register -->

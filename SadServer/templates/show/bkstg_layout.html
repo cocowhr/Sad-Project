@@ -17,17 +17,19 @@
 	<script src="https://cdn.bootcss.com/bootstrap/2.3.1/js/bootstrap-collapse.min.js"> </script>
 	<link href="{% static 'css/bootstrap-datetimepicker.min.css' %}" rel="stylesheet" type="text/css" media="all">
 	<script src="{% static 'js/bootstrap-datetimepicker.min.js' %}"></script>
+
+	<link rel="shortcut icon" href="{% static 'images/icon.png' %}" />
 	
 	{% block headcss %}{% endblock %}
 	{% block style %}{% endblock %}
 	{% block headjs %}{% endblock %}	
 </head>
 <body>
-	{% include "show/bkstg_header.html" %}
+	{% include "bkstg_header.html" %}
 	<div class="content">
 	    {% block body %}{% endblock %}
 	</div>
-	{% include "show/footer.html" %}
+	{% include "footer.html" %}
 
 	{% block footjs %}{% endblock %}
 	{% block footjs_inline %}{% endblock %}

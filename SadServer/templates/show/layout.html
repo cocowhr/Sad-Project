@@ -11,22 +11,25 @@
 	<link href='http://fonts.googleapis.com/css?family=Open+Sans:400,300,600,700,800' rel='stylesheet' type='text/css'>
 	<link href='http://fonts.googleapis.com/css?family=Libre+Baskerville:400,700' rel='stylesheet' type='text/css'>
 	<script src="https://cdn.bootcss.com/jquery/2.1.4/jquery.min.js"></script>
+	<link rel="stylesheet" href="{% static 'css/flexslider.css' %}" type="text/css" media="screen" />
 	<script src="{% static 'js/simpleCart.min.js' %}"> </script>
 	<script src="https://cdn.bootcss.com/bootstrap/3.3.5/js/bootstrap.min.js"> </script>
 	<script src="https://cdn.bootcss.com/bootstrap/2.3.1/js/bootstrap-collapse.min.js"> </script>
 	<link href="{% static 'css/bootstrap-datetimepicker.min.css' %}" rel="stylesheet" type="text/css" media="all">
 	<script src="{% static 'js/bootstrap-datetimepicker.min.js' %}"></script>
+
+	<link rel="shortcut icon" href="{% static 'images/icon.png' %}" />
 	
 	{% block headcss %}{% endblock %}
 	{% block style %}{% endblock %}
 	{% block headjs %}{% endblock %}	
 </head>
 <body>
-	{% include "show/header.html" %}
+	{% include "header.html" %}
 	<div class="content">
 	    {% block body %}{% endblock %}
 	</div>
-	{% include "show/footer.html" %}
+	{% include "footer.html" %}
 
 	{% block footjs %}{% endblock %}
 	{% block footjs_inline %}{% endblock %}

@@ -17,7 +17,7 @@
             $(".date_btn").blur(function () {
                 date = $(this).parent().parent().children('.date_1').val();
                 hospitalid = {{ hospital }}
-                change(date, hospital)
+                        change(date, hospital)
             });
         });
         function change(date, hospital) {
@@ -62,7 +62,37 @@
     <div class="row">
         <div class="col-md-10 col-md-offset-1">
             <div class="page-header">
-                <h3>{{ hospital }} : 选择科室、医生、就诊时间</h3>
+
+                <h3>{{ hospital }}</h3>
+                <table>
+                    <tbody>
+                    <tr>
+                        <td>就诊时间选择&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;</td>
+                        <td>
+                            <div class="input-append date form_datetime row">
+                                <input size="16" type="text" data-format="yyyy-MM-dd" id="date_1" value="" readonly
+                                       required>
+                                <span class="add-on"><button id="date_btn" class="btn btn-default btn-warning">选择日期
+                                </button></span>
+                                <script type="text/javascript">
+                                    $(function () {
+                                        $('.date').datetimepicker({
+                                            pickTime: false
+                                        });
+                                    });
+                                </script>
+                            </div>
+                        </td>
+                        <td>
+                            <select class="form-control" id="date_2">
+                                <option value="上午">&nbsp;&nbsp;上午</option>
+                                <option value="下午">&nbsp;&nbsp;下午</option>
+                            </select>
+                        </td>
+                    </tr>
+                    </tbody>
+                </table>
+
             </div>
         </div>
     </div>
@@ -71,7 +101,8 @@
         <div class="col-md-10 col-md-offset-1">
 
             <div class="alert alert-success" role="alert" id="order_success">预约成功！请及时支付并打印订单。</div>
-            <div class="alert alert-warning text-center" role="alert" id="order_fail">预约失败！请重新预约</div>
+
+
             <div class="panel-group" id="accordion" role="tablist" aria-multiselectable="true">
 
                 {% for dept in departments %}
@@ -94,46 +125,19 @@
                                         <th>姓名</th>
                                         <th>职称</th>
                                         <th>挂号费</th>
-                                        <th colspan="2">就诊时间选择</th>
-                                        <th>该时段可预约数</th>
+                                        <th>可预约数</th>
                                         <th>预约</th>
                                     </tr>
                                     </thead>
                                     <tbody>
                                     {% for doctor in dept.doctors %}
-                                        <tr id="{{ doctor.id }}">
-                                            <td width="15%">{{ doctor.name }}</td>
-                                            <td width="15%">{{ doctor.rank }}</td>
-                                            <td width="15%">{{ doctor.price }}</td>
-
-                                            <td width="20%">
-                                                <div class="input-append date form_datetime row">
-                                                    <input class="date_1" id="appointdate" size="16" type="text"
-                                                           data-format="yyyy-MM-dd" id="date_1" value="" readonly
-                                                           required>
-                                                    <span class="add-on"><button
-                                                            class="date_btn btn btn-default btn-warning">选择日期
-                                                    </button></span>
-                                                    <script type="text/javascript">
-                                                        $(function () {
-                                                            $('.date').datetimepicker({
-                                                                pickTime: false
-                                                            });
-                                                        });
-                                                    </script>
-                                                </div>
-                                            </td>
-                                            <td width="10%">
-                                                <select name="date2" class="form-control date_2" id="date_2">
-                                                    <option value="上午">上午</option>
-                                                    <option value="下午">下午</option>
-                                                </select>
-                                            </td>
-                                            <td class="limit" width="10%">{{ doctor.limit }}</td>
-                                            <td width="15%">
-                                                <button class="btn btn-default btn-success" name="submit" id="submit"
-                                                        onclick="sendmsg('{{ hospitalid }}','{{ dept.id }}','{{ doctor.id }}','{{ doctor.price }}'
-                                                                ,document.getElementById('appointdate').value,document.getElementsByName('date2')[{{ doctor.tag }}].value)">
+                                        <tr name="{{ doctor.name }}">
+                                            <td>{{ doctor.name }}</td>
+                                            <td>{{ doctor.rank }}</td>
+                                            <td>{{ doctor.price }}</td>
+                                            <td>{{ doctor.slot }}</td>
+                                            <td>
+                                                <button class="btn btn-default btn-success" onclick="submit_order()">
                                                     确认预约
                                                 </button>
                                             </td>
@@ -147,8 +151,6 @@
                 {% endfor %}
             </div>
         </div>
-
     </div>
-
     {{ block.super }}
 {% endblock %}
