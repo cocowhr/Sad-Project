@@ -15,8 +15,10 @@
                         <li id="homepage"><a href="{% url 'show.views.index' %}">主页</a></li>
                         {% if not name%}
                         <li id="loginpage"><a href="{% url 'show.views.login' %}">登录</a></li>
+                            {% else %}
+                             <li id="contactpage"><a href="{% url 'api.views.list' %}">我的预约</a></li>
                         {% endif %}
-                        <li id="contactpage"><a href="{% url 'api.views.list' %}">我的预约</a></li>
+
                         <div class="clearfix"></div>
                     </ul>
                     <!-- script-for-nav -->
