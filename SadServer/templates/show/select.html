@@ -9,14 +9,13 @@
                 window.location = "{% url 'show.views.index' %}";
             }, 2000);
         }
-        var limit = null
         $(document).ready(function () {
             $('#listpage').addClass('active');
             $("#order_success").hide();
             $("#order_fail").hide();
-            $(".date_btn").blur(function () {
-                date = $(this).parent().parent().children('.date_1').val();
-                hospitalid = {{ hospital }}
+            $("#date_btn").blur(function () {
+                date = $("#date_1").val()
+                hospital = "{{ hospitalid }}"
                         change(date, hospital)
             });
         });
@@ -63,7 +62,7 @@
         <div class="col-md-10 col-md-offset-1">
             <div class="page-header">
 
-                <h3>{{ hospital }}</h3>
+                <h3 >{{ hospital }}</h3>
                 <table>
                     <tbody>
                     <tr>
