@@ -48,10 +48,10 @@
         function addDoctor(doctor)
         {
               var tableRow = "<tr>" ;
-              tableRow += "<td>{{ doctor.name }}</td>" ;
-              tableRow += "<td>{{ doctor.rank }}</td>" ;
-              tableRow += "<td>{{ doctor.price }}</td>" ;
-              tableRow += "<td>{{ doctor.slot }}</td>" ;
+              tableRow += "<td>" + doctor[name] + "</td>" ;
+              tableRow += "<td>" + doctor[rank] + "</td>" ;
+              tableRow += "<td>" + doctor[price] + "</td>" ;
+              tableRow += "<td>" + doctor[slot] + "</td>" ;
               tableRow += "<td><button class=\"btn btn-default btn-success\" onclick=\"submit_order()\">确认预约</button></td>" ;
               tableRow += "</tr>";
               return tableRow ;
