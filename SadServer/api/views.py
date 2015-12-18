@@ -5,7 +5,7 @@ from django.http import HttpResponse, JsonResponse
 from api.models import *
 import urllib.parse
 import json
-import time
+
 
 
 # view 分为网页版和移动版，移动版以mobile_开头
@@ -105,10 +105,18 @@ def searchhospname(request):
 
 @csrf_exempt
 def searchdepartment(request, hospitalid):
-    deplist = Department.objects.filter(hospital=hospitalid)
     context = {}
     context['hospitalid'] = hospitalid
     context['hospital'] = Hospital.objects.get(id=hospitalid).name
+    try:
+        context['name'] = request.session['username']
+    finally:
+        return render(request, 'show/select.html', context)
+
+@csrf_exempt
+def getlimit(request, hospitalid,date):
+    deplist = Department.objects.filter(hospital=hospitalid)
+    context = {}
     context['departments'] = []
     i = 0
     for dep in deplist:
@@ -116,7 +124,7 @@ def searchdepartment(request, hospitalid):
         dep1['id'] = dep.id
         dep1['name'] = dep.name
         dep1['doctors'] = []
-        doclist = Doctor.objects.filter(department=dep.id)
+        doclist = Maxium_Appointment.objects.filter(department=dep.id)
         for doc in doclist:
             doc1 = {}
             doc1['id'] = doc.id
@@ -125,14 +133,13 @@ def searchdepartment(request, hospitalid):
             doc1['name'] = doc.name
             doc1['rank'] = doc.rank
             doc1['price'] = doc.fee
-            doc1['limit'] = doc.limit
+            doc1['limit'] = Maxium_Appointment.objects.get(id=doc.id,date=date).number
             dep1['doctors'].append(doc1)
         context['departments'].append(dep1)
     try:
         context['name'] = request.session['username']
     finally:
-        return render(request, 'show/select.html', context)
-
+        return render(request, 'show/date.html', context)
 
 @csrf_exempt
 def showlist(request):
@@ -390,23 +397,6 @@ def setmax(request):
         return JsonResponse({'fail': True})
 
 
-@csrf_exempt
-def getmsg(request):
-    date = request.POST['date']
-    hospital = request.POST['hospital']
-    maxlist = Maxium_Appointment.objects.filter(date=date,hospital=hospital)
-    if maxlist.__len__() == 0:
-        return JsonResponse({'fail': True})
-    else:
-        context = {}
-        context['doclist'] = []
-        for doctormax in maxlist:
-            doctormax1 = dict()
-            doctormax1['doctorid'] = doctormax.doctor.id
-            doctormax1['max'] = doctormax.number
-            context['doclist'].append(doctormax1)
-        return JsonResponse({'success': True, 'context': context})
-
  # Android
 # 安卓端只有普通用户界面，无管理员权限
 
@@ -579,7 +569,6 @@ def mobile_showlist(user):
     :param request: user
     :return:    Http return
     """
-    user = User.objects.get(name=user)
     appointlist = Appointment.objects.filter(user=user)
     if appointlist.__len__() > 0:
         rresponse = dict()
@@ -591,10 +580,10 @@ def mobile_showlist(user):
             #   appoint1['hospitalid'] = appoint.hospital.id
             #   appoint1['doctorid'] = appoint.doctor.id
             #   appoint1['deptid'] = appoint.department.id
-            appoint['date2'] = appoint.date2
+            appoint1['date2'] = appoint.date2
             appoint1['dept'] = appoint.department.name
             appoint1['price'] = appoint.fare
-            appoint1['date'] = appoint.appointment_date
+            appoint1['date'] = appoint.appointment_date.strftime('%Y-%m-%d')
             appoint1['doctor'] = appoint.doctor.name
             appoint1['rank'] = appoint.doctor.rank
             rresponse['unpayedOrders'].append(appoint1)
@@ -610,7 +599,7 @@ def mobile_showlist(user):
             pay1['dept'] = pay.department.name
             pay1['price'] = pay.fare
             pay1['date2'] = pay.date2
-            pay1['date'] = pay.appointment_date
+            pay1['date'] = pay.appointment_date.strftime('%Y-%m-%d')
             pay1['doctor'] = pay.doctor.name
             pay1['rank'] = pay.doctor.rank
             rresponse['payedOrders'].append(pay1)
@@ -640,7 +629,7 @@ def mobile_list(request):
             jresponse = json.dumps(rresponse)
             return HttpResponse(jresponse)
         user = User.objects.get(name=decode['user'])
-        jresponse = showlist(user)
+        jresponse = mobile_showlist(user)
         return HttpResponse(jresponse)
 
 
@@ -663,7 +652,7 @@ def mobile_cancelappoint(request):
             appoint = Appointment.objects.get(id=decode['appoint'])
             Appointment.delete(appoint)
             username = decode['username']
-            jresponse = showlist(username)
+            jresponse = mobile_showlist(username)
             return HttpResponse(jresponse)
         except ObjectDoesNotExist:
             rresponse = dict()
@@ -692,7 +681,7 @@ def mobile_payappoint(request):
             appoint.status = 1
             appoint.save()
             username = decode['username']
-            jresponse = showlist(username)
+            jresponse = mobile_showlist(username)
             return HttpResponse(jresponse)
         except ObjectDoesNotExist:
             rresponse = dict()

@@ -14,24 +14,15 @@
             $("#order_success").hide();
             $("#order_fail").hide();
             $("#date_btn").blur(function () {
-                date = $("#date_1").val()
-                hospital = "{{ hospitalid }}"
-                        change(date, hospital)
+                date = $("#date_1").val();
+                hospital = {{ hospitalid }};
+                change(date, hospital)
             });
         });
         function change(date, hospital) {
-            $.post('{% url 'api.views.getmsg' %}', {
-                date: (date),
-                hospital: (hospital)
-            }, function (result) {
-                if (result.success) {
-                    alert(JSON.stringify(result.context.doclist)
-                    )
-                }
-                if (result.fail) {
-                    alert("fail")
-                }
-            });
+            $('.data').remove()
+            $('.panel-group').append("\<divclass =\"data\"\>\</div\>")
+            $('.data').load("{% url 'api.views.getlimit' hospital date %}")
         }
         function sendmsg(hospital, department, doctor, price, date, date2) {
             $.post('{% url 'api.views.appoint' %}', {
@@ -62,7 +53,7 @@
         <div class="col-md-10 col-md-offset-1">
             <div class="page-header">
 
-                <h3 >{{ hospital }}</h3>
+                <h3>{{ hospital }}</h3>
                 <table>
                     <tbody>
                     <tr>

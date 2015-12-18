@@ -13,6 +13,7 @@ urlpatterns = [
     url(r'^searchhospname/$', 'api.views.searchhospname'),
     url(r'^appoint/$', 'api.views.appoint'),
     url(r'^searchdepartment/(?P<hospitalid>\d+)/$', 'api.views.searchdepartment'''),
+    url(r'^getlimit/(?P<hospitalid>\d+)/(?P<date>\w+)/$', 'api.views.getlimit'''),
     url(r'^cancelappoint/(?P<appointid>\d+)/$', 'api.views.cancelappoint'''),
     url(r'^payappoint/(?P<appointid>\d+)/$', 'api.views.payappoint'''),
     url(r'^list/$', 'api.views.list'),
@@ -22,7 +23,7 @@ urlpatterns = [
     url(r'^getdept/$', 'api.views.getdept'),
     url(r'^getdoc/$', 'api.views.getdoc'),
     url(r'^setmax/$', 'api.views.setmax'),
-    url(r'^getmsg/$', 'api.views.getmsg'),
+    url(r'^getlimit/$', 'api.views.getlimit'),
     # Android
     # 以下url均以mobile/开头
     url(r'^mobile/login/$', 'api.views.mobile_login'),
