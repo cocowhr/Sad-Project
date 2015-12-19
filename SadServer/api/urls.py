@@ -16,6 +16,7 @@ urlpatterns = [
     url(r'^getlimit/(?P<hospitalid>\d+)/(?P<date>\w+)/$', 'api.views.getlimit'''),
     url(r'^cancelappoint/(?P<appointid>\d+)/$', 'api.views.cancelappoint'''),
     url(r'^payappoint/(?P<appointid>\d+)/$', 'api.views.payappoint'''),
+    url(r'^cancelorder/(?P<orderid>\d+)/$', 'api.views.cancelorder'''),
     url(r'^list/$', 'api.views.list'),
     url(r'^info/$', 'api.views.info'),
     url(r'^rejectuser/(?P<userid>\d+)/$', 'api.views.rejectuser'''),

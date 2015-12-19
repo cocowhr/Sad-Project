@@ -78,29 +78,24 @@ def logout(request):
 
 @csrf_exempt
 def searchhospname(request):
-    hospname = request.GET["hospname"]
-    hosplist = Hospital.objects.filter(name__contains=hospname)
-    if hosplist.__len__() > 0:
-        context = {}
-        try:
-            context['name'] = request.session['username']
-        finally:
-            context['hospitalList'] = []
-            for hosp in hosplist:
-                hosp1 = {}
-                hosp1['id'] = hosp.id
-                hosp1['name'] = hosp.name
-                hosp1['loc'] = hosp.address
-                hosp1['intro'] = hosp.contact
-                context['hospitalList'].append(hosp1)
-            try:
-                context['name'] = request.session['username']
-            finally:
-                return render(request, 'show/hospitals.html', context)
-                # 判断用户名是否被注册
+    if(request.GET.get('hospname')):
+        hospname = request.GET["hospname"]
+        hosplist = Hospital.objects.filter(name__contains=hospname)
     else:
-        context = {}
-        return render(request, 'show/hello.html', context)
+        hosplist=Hospital.objects.all()
+    context = {}
+    context['hospitalList'] = []
+    for hosp in hosplist:
+        hosp1 = {}
+        hosp1['id'] = hosp.id
+        hosp1['name'] = hosp.name
+        hosp1['loc'] = hosp.address
+        hosp1['intro'] = hosp.contact
+        context['hospitalList'].append(hosp1)
+    try:
+        context['name'] = request.session['username']
+    finally:
+        return render(request, 'show/hospitals.html', context)
 
 
 @csrf_exempt
@@ -113,33 +108,34 @@ def searchdepartment(request, hospitalid):
     finally:
         return render(request, 'show/select.html', context)
 
+
 @csrf_exempt
-def getlimit(request, hospitalid,date):
-    deplist = Department.objects.filter(hospital=hospitalid)
+def getlimit(request):
+    hospitalid = request.POST['hospital']
+    date = request.POST['date']
+    date2 = request.POST['date2']
+    maxappoint = Maxium_Appointment.objects.filter(hospital=hospitalid, date=date, date2=date2)
     context = {}
-    context['departments'] = []
-    i = 0
-    for dep in deplist:
+    context['data'] = []
+    deplist = maxappoint.distinct().values('department')
+    for depid in deplist:
         dep1 = {}
-        dep1['id'] = dep.id
+        dep = Department.objects.get(id=depid['department'])
         dep1['name'] = dep.name
-        dep1['doctors'] = []
-        doclist = Maxium_Appointment.objects.filter(department=dep.id)
-        for doc in doclist:
+        dep1['doctor'] = []
+        doclist = maxappoint.filter(department=dep.id).distinct().values('doctor')
+        for docid in doclist:
             doc1 = {}
+            doc = Doctor.objects.get(id=docid['doctor'])
             doc1['id'] = doc.id
-            doc1['tag'] = i
-            i = i + 1
             doc1['name'] = doc.name
             doc1['rank'] = doc.rank
             doc1['price'] = doc.fee
-            doc1['limit'] = Maxium_Appointment.objects.get(id=doc.id,date=date).number
-            dep1['doctors'].append(doc1)
-        context['departments'].append(dep1)
-    try:
-        context['name'] = request.session['username']
-    finally:
-        return render(request, 'show/date.html', context)
+            doc1['limit'] = maxappoint.get(doctor=doc).number
+            dep1['doctor'].append(doc1)
+        context['data'].append(dep1)
+    return JsonResponse({'success': True, 'context': context})
+
 
 @csrf_exempt
 def showlist(request):
@@ -193,6 +189,9 @@ def list(request):
 def cancelappoint(request, appointid):
     appoint = Appointment.objects.get(id=appointid)
     context = {}
+    max=Maxium_Appointment.objects.get(doctor=appoint.doctor,date=appoint.appointment_date,date2=appoint.date2)
+    max.number=max.number+1
+    max.save()
     Appointment.delete(appoint)
     context = showlist(request)
     return render(request, 'show/list.html', context)
@@ -216,34 +215,43 @@ def payappoint(request, appointid):
     context = showlist(request)
     return render(request, 'show/list.html', context)
 
+@csrf_exempt
+def cancelorder(request, orderid):
+    order = Order.objects.get(id=orderid)
+    context = {}
+    max=Maxium_Appointment.objects.get(doctor=order.doctor,date=order.appointment_date,date2=order.date2)
+    max.number=max.number+1
+    max.save()
+    Order.delete(order)
+    context = showlist(request)
+    return render(request, 'show/list.html', context)
 
 @csrf_exempt
 def appoint(request):
     context = {}
-    hospital = request.POST['hospital']
-    department = request.POST['department']
     doctorid = request.POST['doctor']
-    username = request.session.get('username')
-    price = request.POST['price']
-    user = User.objects.get(name=username)
-    date2 = request.POST['date2']
-    # user=User.objects.get(id=1)
-    appointment_date = request.POST['appointment_date']
     doctor = Doctor.objects.get(id=doctorid)
+    username = request.session.get('username')
+    user = User.objects.get(name=username)
+    appointment_date = request.POST['appointment_date']
+    date2 = request.POST['date2']
     appointlist = Appointment.objects.filter(user=user)
     if appointlist.__len__() <= 3:
-        appointlist = Appointment.objects.filter(user=user, department=department)
+        appointlist = Appointment.objects.filter(user=user, department=doctor.department)
         if appointlist.__len__() == 0:
             context = {}
             appoint = Appointment()
             appoint.user = user
-            appoint.fare = price
+            appoint.fare = doctor.fee
             appoint.doctor = doctor
             appoint.date2 = date2
-            appoint.hospital = Hospital.objects.get(id=hospital)
-            appoint.department = Department.objects.get(id=department)
+            appoint.hospital = doctor.hospital
+            appoint.department = doctor.department
             appoint.appointment_date = appointment_date
             appoint.save()
+            max=Maxium_Appointment.objects.get(doctor=doctor,date=appointment_date,date2=date2)
+            max.number=max.number-1
+            max.save()
             return JsonResponse({'success': True})
         else:
             return JsonResponse({'fail': True})
@@ -381,6 +389,7 @@ def setmax(request):
     hospital = request.POST['hospital']
     department = request.POST['department']
     date = request.POST['date']
+    date2 = request.POST['date2']
     num = request.POST['num']
     maxlist = Maxium_Appointment.objects.filter(doctor=doctor, date=date)
     if maxlist.__len__() == 0:
@@ -390,6 +399,7 @@ def setmax(request):
         maxapp.hospital = Hospital.objects.get(id=hospital)
         maxapp.department = Department.objects.get(id=department)
         maxapp.date = date
+        maxapp.date2=date2
         maxapp.number = num
         maxapp.save()
         return JsonResponse({'success': True})
@@ -397,7 +407,9 @@ def setmax(request):
         return JsonResponse({'fail': True})
 
 
- # Android
+        # Android
+
+
 # 安卓端只有普通用户界面，无管理员权限
 
 

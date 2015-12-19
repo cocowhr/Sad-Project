@@ -7,88 +7,86 @@
             $("#order_success").fadeIn();
             setTimeout(function () {
                 window.location = "{% url 'show.views.index' %}";
-            }, 2000);
+            }, 500);
         }
-        function getData()
-        {
-            //获取按日期查询的数据getData()，返回refresh所需数据
-        }
-
-        /**
-           *按日期查询的刷新函数refresh(data)
-           *传入js数组: data[‘科室名’] = {医生1, 医生2, ...}
-           *其中医生1,2...是这样的数组：doctor1[‘name’] = “”, doctor[‘rank’] = “”, ...
-           */
-        function refresh(data)
-        {
-            $(".select_data").remove();
-            var data_frame = "<div class=\"select_data\"></div>" ;
-            $(data_frame).appendTo($(".panel-group"));
-            for(var key in data) {
-                addDept(key, data[key]);
-            }
-        }
-        function addDept(dept, doctorList)
-        {
-              var deptPanel = "<div class=\"panel panel-primary\">" ;
-              deptPanel += "<div class=\"panel-heading\" role=\"tab\" id=\"heading{{ dept.name }}\">" ;
-              deptPanel += "<h4 class=\"panel-title\">" ;
-              deptPanel += "<a role=\"button\" data-toggle=\"collapse\" data-parent=\"#accordion\" href=\"#collapse{{ dept.name }}\" aria-expanded=\"true\" aria-controls=\"collapse{{ dept.name }}\">{{ dept.name }}</a>" ;
-              deptPanel += "</h4>" + "</div>" ;
-              deptPanel += "<div id=\"collapse{{ dept.name }}\" class=\"panel-collapse collapse\" role=\"tabpanel\" aria-labelledby=\"heading{{ dept.name }}\">" ;
-              deptPanel += "<div class=\"panel-body\">" + "<table class=\"table\">" + "<thead>" + "<tr>" + "<th>姓名</th>" + "<th>职称</th>" + "<th>挂号费</th>" + "<th>可预约数</th>" + "<th>预约</th>" + "</tr>" + "</thead>" ;
-              deptPanel += "<tbody>" ;
-              for(key in doctorList)
-              {            
-                    deptPanel += addDoctor(doctorList[key]);
-              }
-              deptPanel += "</tbody>" + "</table>" + "</div>" + "</div>" + "</div>" ;
-              $(deptPanel).appendTo($(".select_data"));
-        }
-        function addDoctor(doctor)
-        {
-              var tableRow = "<tr>" ;
-              tableRow += "<td>" + doctor[name] + "</td>" ;
-              tableRow += "<td>" + doctor[rank] + "</td>" ;
-              tableRow += "<td>" + doctor[price] + "</td>" ;
-              tableRow += "<td>" + doctor[slot] + "</td>" ;
-              tableRow += "<td><button class=\"btn btn-default btn-success\" onclick=\"submit_order()\">确认预约</button></td>" ;
-              tableRow += "</tr>";
-              return tableRow ;
-        }
-        $(document).ready(function () {
-            $('#listpage').addClass('active');
-            $("#order_success").hide();
-            $("#order_fail").hide();
-            
-          $("#query").click(function() {
-                date = $("#date_1").val() + $("#date_2").val();
-                hospital = "{{ hospitalid }}";
-                //change(date, hospital);
-                var data = getData();
-                refresh(data);
-          });
-        });
-        function change(date, hospital) {       //你整合一下到getData里面，返回相应的数据格式
-            $.post('{% url 'api.views.getmsg' %}', {
+        function getData(date, date2, hospital) {
+            $.post('{% url 'api.views.getlimit' %}', {
                 date: (date),
+                date2: (date2),
                 hospital: (hospital)
             }, function (result) {
                 if (result.success) {
-                    alert(JSON.stringify(result.context.doclist)
-                    )
+                    var data = result.context.data
+
+                    refresh(data)
                 }
                 if (result.fail) {
                     alert("fail")
                 }
             });
         }
-        function sendmsg(hospital, department, doctor, price, date, date2) {
+
+        /**
+         * 数据格式
+         * data = { dept1, dept2, ... }
+         * dept1['name'] = ""
+         * dept1['doctors'] = { doc1, doc2, ... }
+         * doc1['name'] = ""
+         * doc1['rank'] = ""
+         * ...
+         */
+        function refresh(data) {
+            $(".select_data").remove();
+            var data_frame = "<div class=\"select_data\"></div>";
+            $(data_frame).appendTo($(".panel-group"));
+            for (var key in data) {
+                addDept(data[key]);
+            }
+        }
+        function addDept(dept) {
+            var deptPanel = "<div class=\"panel panel-primary\">";
+            deptPanel += "<div class=\"panel-heading\" role=\"tab\" id=\"heading" + dept['name'] + "\">";
+            deptPanel += "<h4 class=\"panel-title\">";
+            deptPanel += "<a role=\"button\" data-toggle=\"collapse\" data-parent=\"#accordion\" href=\"#collapse" + dept['name'] + "\" aria-expanded=\"true\" aria-controls=\"collapse" + dept['name'] + "\">" + dept['name'] + "</a>";
+            deptPanel += "</h4>" + "</div>";
+            deptPanel += "<div id=\"collapse" + dept['name'] + "\" class=\"panel-collapse collapse\" role=\"tabpanel\" aria-labelledby=\"heading" + dept['name'] + "\">";
+            deptPanel += "<div class=\"panel-body\">" + "<table class=\"table\">" + "<thead>" + "<tr>" + "<th>姓名</th>" + "<th>职称</th>" + "<th>挂号费</th>" + "<th>可预约数</th>" + "<th>预约</th>" + "</tr>" + "</thead>";
+            deptPanel += "<tbody>";
+            for (var key in dept['doctor']) {
+                deptPanel += addDoctor(dept['doctor'][key]);
+            }
+            deptPanel += "</tbody>" + "</table>" + "</div>" + "</div>" + "</div>";
+            $(deptPanel).appendTo($(".select_data"));
+        }
+        function addDoctor(doctor) {
+            var tableRow = "<tr name=\"" + doctor['id'] + "\">";
+            tableRow += "<td>" + doctor['name'] + "</td>";
+            tableRow += "<td>" + doctor['rank'] + "</td>";
+            tableRow += "<td>" + doctor['price'] + "</td>";
+            tableRow += "<td>" + doctor['limit'] + "</td>";
+            tableRow += "<td><button class=\"btn btn-default btn-success\" onclick=\"sendmsg(\'"+doctor['id']+"\',\'"+$("#date_1").val()+"\',\'"+$("#date_2").val()+"\')\">确认预约</button></td>";
+            tableRow += "</tr>";
+            return tableRow;
+        }
+
+        $(document).ready(function () {
+            $('#listpage').addClass('active');
+            $("#order_success").hide();
+            $("#order_fail").hide();
+            $("#query").click(function () {
+                date = $("#date_1").val();
+                date2 = $("#date_2").val();
+                hospital = "{{ hospitalid }}";
+                var data = getData(date, date2, hospital);
+            });
+            $(".submit_order").click(function () {
+                        alert($(this).parent().parent().attr("name"))
+                    }
+            )
+        });
+        function sendmsg(doctor, date, date2) {
             $.post('{% url 'api.views.appoint' %}', {
-                hospital: (hospital),
-                department: (department),
                 doctor: (doctor),
-                price: (price),
                 appointment_date: (date),
                 date2: date2,
             }, function (result) {
@@ -114,33 +112,36 @@
 
                 <h3>{{ hospital }}</h3>
                 <table>
-                  <tbody>
-                        <tr>
-                          <td>就诊时间选择&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;</td>
-                          <td>
-                          <div class="input-append date form_datetime row">
-                            <input size="16" type="text" data-format="yyyy-MM-dd" id="date_1" value="" readonly required>
-                            <span class="add-on"><button id="date_btn" class="btn btn-default btn-warning">选择日期</button></span>
+                    <tbody>
+                    <tr>
+                        <td>就诊时间选择&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;</td>
+                        <td>
+                            <div class="input-append date form_datetime row">
+                                <input size="16" type="text" data-format="yyyy-MM-dd" id="date_1" value="" readonly
+                                       required>
+                                <span class="add-on"><button id="date_btn" class="btn btn-default btn-warning">选择日期
+                                </button></span>
                                 <script type="text/javascript">
-                              $(function() {
-                                $('.date').datetimepicker({
-                                  pickTime: false
-                                });
-                              });
-                            </script>
-                          </div>
+                                    $(function () {
+                                        $('.date').datetimepicker({
+                                            pickTime: false
+                                        });
+                                    });
+                                </script>
+                            </div>
                         </td>
                         <td>
-                          <select class="form-control" id="date_2">
-                            <option value="上午">&nbsp;&nbsp;上午</option>
-                            <option value="下午">&nbsp;&nbsp;下午</option>
-                          </select>
+                            <select class="form-control" id="date_2">
+                                <option value="上午">&nbsp;&nbsp;上午</option>
+                                <option value="下午">&nbsp;&nbsp;下午</option>
+                            </select>
                         </td>
                         <td>
-                          &nbsp;&nbsp;&nbsp;<button id="query" class="btn btn-info">查询</button>
+                            &nbsp;&nbsp;&nbsp;
+                            <button id="query" class="btn btn-info">查询</button>
                         </td>
-                      </tr>
-                  </tbody>
+                    </tr>
+                    </tbody>
                 </table>
 
             </div>
@@ -155,52 +156,52 @@
 
             <div class="panel-group" id="accordion" role="tablist" aria-multiselectable="true">
                 <div class="select_data">
-                {% for dept in departments %}
-                    <div class="panel panel-primary">
-                        <div class="panel-heading" role="tab" id="heading{{ dept.name }}">
-                            <h4 class="panel-title">
-                                <a role="button" data-toggle="collapse" data-parent="#accordion"
-                                   href="#collapse{{ dept.name }}" aria-expanded="true"
-                                   aria-controls="collapse{{ dept.name }}">
-                                    {{ dept.name }}
-                                </a>
-                            </h4>
-                        </div>
-                        <div id="collapse{{ dept.name }}" class="panel-collapse collapse" role="tabpanel"
-                             aria-labelledby="heading{{ dept.name }}">
-                            <div class="panel-body">
-                                <table class="table">
-                                    <thead>
-                                    <tr>
-                                        <th>姓名</th>
-                                        <th>职称</th>
-                                        <th>挂号费</th>
-                                        <th>可预约数</th>
-                                        <th>预约</th>
-                                    </tr>
-                                    </thead>
-                                    <tbody>
-                                    {% for doctor in dept.doctors %}
-                                        <tr name="{{ doctor.name }}">
-                                            <td>{{ doctor.name }}</td>
-                                            <td>{{ doctor.rank }}</td>
-                                            <td>{{ doctor.price }}</td>
-                                            <td>{{ doctor.slot }}</td>
-                                            <td>
-                                                <button class="btn btn-default btn-success" onclick="submit_order()">
-                                                    确认预约
-                                                </button>
-                                            </td>
+                    {% for dept in departments %}
+                        <div class="panel panel-primary">
+                            <div class="panel-heading" role="tab" id="heading{{ dept.name }}">
+                                <h4 class="panel-title">
+                                    <a role="button" data-toggle="collapse" data-parent="#accordion"
+                                       href="#collapse{{ dept.name }}" aria-expanded="true"
+                                       aria-controls="collapse{{ dept.name }}">
+                                        {{ dept.name }}
+                                    </a>
+                                </h4>
+                            </div>
+                            <div id="collapse{{ dept.name }}" class="panel-collapse collapse" role="tabpanel"
+                                 aria-labelledby="heading{{ dept.name }}">
+                                <div class="panel-body">
+                                    <table class="table">
+                                        <thead>
+                                        <tr>
+                                            <th>姓名</th>
+                                            <th>职称</th>
+                                            <th>挂号费</th>
+                                            <th>可预约数</th>
+                                            <th>预约</th>
                                         </tr>
-                                    {% endfor %}
-                                    </tbody>
-                                </table>
+                                        </thead>
+                                        <tbody>
+                                        {% for doctor in dept.doctors %}
+                                            <tr name="{{ doctor.id }}">
+                                                <td>{{ doctor.name }}</td>
+                                                <td>{{ doctor.rank }}</td>
+                                                <td>{{ doctor.price }}</td>
+                                                <td>{{ doctor.slot }}</td>
+                                                <td>
+                                                    <button class="submit_order btn btn-default btn-success">
+                                                        确认预约
+                                                    </button>
+                                                </td>
+                                            </tr>
+                                        {% endfor %}
+                                        </tbody>
+                                    </table>
+                                </div>
                             </div>
                         </div>
-                    </div>
-                {% endfor %}
+                    {% endfor %}
+                </div>
             </div>
-        </div>
 
         </div>
     </div>

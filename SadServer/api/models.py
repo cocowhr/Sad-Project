@@ -67,4 +67,5 @@ class Maxium_Appointment(models.Model):
     department = models.ForeignKey(Department)
     doctor = models.ForeignKey(Doctor)  # 医生
     date = models.DateField()  # 日期
+    date2 = models.CharField(max_length=6)
     number = models.IntegerField(default=0)  # 当天的最大预约人数

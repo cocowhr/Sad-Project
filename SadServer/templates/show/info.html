@@ -81,12 +81,13 @@
         }
     </script>
     <script type="text/javascript">
-        function sendmsg(doctor, hospital, department, date, num) {
+        function sendmsg(doctor, hospital, department, date , date2, num) {
             $.post('{% url 'api.views.setmax' %}', {
                 doctor: (doctor),
                 hospital: (hospital),
                 department: (department),
                 date: (date),
+                date2:(date2),
                 num: (num),
             }, function (result) {
                 if (result.success) {
@@ -163,13 +164,21 @@
                             </div>
                         </div>
                         <div class="col-md-4">
+                            <label class="control-label">上/下午</label>
+                                <select class="form-control" id="date_2">
+                                    <option value="上午">&nbsp;&nbsp;上午</option>
+                                    <option value="下午">&nbsp;&nbsp;下午</option>
+                                </select>
+                        </div>
+                        <div class="col-md-4">
                             <label class="control-label">可接受预约数量</label>
                             <input id="num" type="number" class="form-control " required="required">
                         </div>
                         <div class="col-md-12">
                             <center>
                                 <button class="btn btn-default btn-success" name="submit" id="submit"
-                                        onclick="sendmsg(document.getElementById('selectdoc').value,document.getElementById('selecthosp').value,document.getElementById('selectdept').value,document.getElementById('date').value,document.getElementById('num').value)">
+                                        onclick="sendmsg(document.getElementById('selectdoc').value,document.getElementById('selecthosp').value,
+                                        document.getElementById('selectdept').value,document.getElementById('date').value,document.getElementById('date_2').value,document.getElementById('num').value)">
                                     确认
                                 </button>
                             </center>

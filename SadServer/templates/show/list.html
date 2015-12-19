@@ -211,6 +211,11 @@
                                                 </div>
                                             </div>
                                         </td>
+                                        <td>
+                                            <a href="{% url 'api.views.cancelorder' order.appointid %}">
+                                                <button class="btn btn-default btn-danger">取消</button>
+                                            </a>
+                                        </td>
                                     </tr>
                                 {% endfor %}
                                 </tbody>

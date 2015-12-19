@@ -66,12 +66,19 @@
                                     </div>
                                 </li>
                                 <li class="span1_of_3">
-                                    <div class="date_btn">
-                                        <input type="submit" value="搜索">
+                                    <div class="date_btn ">
+                                        <input class="btn btn-lg btn-success" type="submit" value="搜索">
                                     </div>
                                 </li>
-                                <div class="clearfix"></div>
                             </form>
+                            <div class="date_btn ">
+                                <a href="{% url 'api.views.searchhospname' %}">
+                                    <button class="btn btn-default btn-danger">显示所有医院
+                                    </button>
+                                </a>
+                            </div>
+                            <div class="clearfix"></div>
+
                         </ul>
                     </div>
                 </div>
