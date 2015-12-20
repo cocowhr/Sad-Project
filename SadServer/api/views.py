@@ -573,7 +573,7 @@ def mobile_searchdepartment(request):
 @csrf_exempt
 def mobile_showlist(user):
     """
-    返回信息结构为{status:状态参数, UnpayedOrders:未付费订单列表, payedOrders:已付费订单列表}
+    返回信息结构为{status:状态参数, unpayedOrders:未付费订单列表, payedOrders:已付费订单列表}
                 未付费订单列表{appointid:订单id hospital:医院名 date2:预约日期 dept:部门名
                                 price:订单费用 date:下订单日期 doctor:医生名 rank:医生职称}
                 已付费订单列表{appointid:订单id hospital:医院名 date2:预约日期 dept:部门名
@@ -753,12 +753,13 @@ def mobile_appoint(request):
 @csrf_exempt
 def mobile_info(request):
     """
-    返回信息结构为{status:状态参数, info:医院列表信息, count:医院总数}
+    返回信息结构为{status:状态参数, info:医院列表信息}
                 医院列表信息{id:医院ID， name:医院名}
     :param request: Http request
     :return:    Http return
     """
     rresponse = dict()
+    rresponse['info'] = []
     try:
         hospitallist = Hospital.objects.all()
         rresponse['status'] = 'normal'  # 状态信息加入返回信息
@@ -767,7 +768,6 @@ def mobile_info(request):
         rresponse['info'] = 'No hospital'
         jresponse = json.dumps(rresponse)
         return HttpResponse(jresponse)
-    info = dict()  # 医院列表
     count = 0  # 医院条目计数
     for hosp in hospitallist:  # 遍历所有医院条目
         count += 1
@@ -775,11 +775,7 @@ def mobile_info(request):
         hosp1['id'] = hosp.id
         hosp1['name'] = hosp.name
         hosp1['city'] = hosp.city
-        hos_single_info = json.dumps(hosp1)  # 将单个医院的属性转为json
-        info[str(count)] = hos_single_info  # 将单个医院实体加入医院列表信息字典
-    j_info = json.dumps(info)  # 将医院列表转为json
-    rresponse['info'] = j_info  # 医院列表实体加入返回信息
-    rresponse['count'] = count  # 计数加入返回信息
+        rresponse['info'].append(hosp1)  # 将单个医院实体加入医院列表信息字典
     jresponse = json.dumps(rresponse)
     return HttpResponse(jresponse)
 
@@ -787,13 +783,14 @@ def mobile_info(request):
 @csrf_exempt
 def mobile_getdept(request):
     """
-    返回信息结构为{status:状态参数, info:部门列表信息, count:部门总数}
+    返回信息结构为{status:状态参数, info:部门列表信息}
                 部门列表信息{id:部门ID， name:部门名}
     :param request:
     :return:
     """
     decode = m_decode(request.body)  # request内容由json解码为dict
     rresponse = dict()
+    rresponse['info'] = []
     hospital = decode['hospital']
     deptlist = Department.objects.filter(hospital=hospital)
     info = dict()  # 部门列表
@@ -804,11 +801,7 @@ def mobile_getdept(request):
         dept1 = dict()
         dept1['id'] = dept.id
         dept1['name'] = dept.name
-        j_dept1 = json.dumps(dept1)  # 将单个部门的属性转为json
-        info[str(count)] = j_dept1  # 将单个部门加入部门列表字典
-    j_info = json.dumps(info)  # 将部门列表转为json
-    rresponse['info'] = j_info  # 部门列表加入返回信息
-    rresponse['count'] = count  # 计数加入返回信息
+        rresponse['info'].append(dept1)
     jresponse = json.dumps(rresponse)
     return HttpResponse(jresponse)
 
@@ -816,13 +809,14 @@ def mobile_getdept(request):
 @csrf_exempt
 def mobile_getdoc(request):
     """
-    返回信息结构为{status:状态参数, info:医生列表信息, count:医生总数}
+    返回信息结构为{status:状态参数, info:医生列表信息}
                 医生列表信息{id:医生ID， name:医生名}
     :param request:
     :return:
     """
     decode = m_decode(request.body)  # request内容由json解码为dict
     rresponse = dict()
+    rresponse['info'] = []
     dept = decode['dept']
     doclist = Doctor.objects.filter(department=dept)
     info = dict()  # 医生列表
@@ -832,10 +826,6 @@ def mobile_getdoc(request):
         doc1 = dict()
         doc1['id'] = doc.id
         doc1['name'] = doc.name
-        j_doc1 = json.dumps(doc1)  # 将单个医生的属性转为json
-        info[str(count)] = j_doc1  # 将单个医生加入部门列表字典
-    j_info = json.dumps(info)  # 将医生列表转为json
-    rresponse['info'] = j_info  # 医生列表加入返回信息
-    rresponse['count'] = count  # 计数加入返回信息
+        rresponse['info'].append(doc1)
     jresponse = json.dumps(rresponse)
     return HttpResponse(jresponse)
