@@ -710,6 +710,7 @@ def mobile_appoint(request):
     :return:    Http return
     """
     if request.method == 'POST':
+        rresponse = dict()
         try:
             decode = m_decode(request.body)
         except:
@@ -717,35 +718,36 @@ def mobile_appoint(request):
             rresponse['status'] = 'decode_error'
             jresponse = json.dumps(rresponse)
             return HttpResponse(jresponse)
-        hospital = decode['hospital']
-        department = decode['department']
         doctorid = decode['doctorid']
         username = decode['username']
-        price = decode['price']
         date2 = decode['date2']
         user = User.objects.get(name=username)
         appointment_date = decode['date']
         doctor = Doctor.objects.get(id=doctorid)
         appointlist = Appointment.objects.filter(user=user, doctor=doctor)
+        if appointlist.__len__() <= 3:
+            appointlist = Appointment.objects.filter(user=user, department=doctor.department)
         if appointlist.__len__() == 0:
+            context = {}
             appoint = Appointment()
             appoint.user = user
-            appoint.fare = price
+            appoint.fare = doctor.fee
             appoint.doctor = doctor
             appoint.date2 = date2
-            appoint.hospital = Hospital.objects.get(id=hospital)
-            appoint.department = Department.objects.get(id=department)
+            appoint.hospital = doctor.hospital
+            appoint.department = doctor.department
             appoint.appointment_date = appointment_date
             appoint.save()
-            rresponse = dict()
+            max=Maxium_Appointment.objects.get(doctor=doctor,date=appointment_date,date2=date2)
+            max.number=max.number-1
+            max.save()
             rresponse['status'] = 'normal'
             jresponse = json.dumps(rresponse)
-            return HttpResponse(jresponse)
+            return jresponse
         else:
-            rresponse = dict()
-            rresponse['status'] = 'failed'
+            rresponse['status'] = 'appoint_failed'
             jresponse = json.dumps(rresponse)
-            return HttpResponse(jresponse)
+            return jresponse
 
 
 @csrf_exempt
