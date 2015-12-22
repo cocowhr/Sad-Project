@@ -35,7 +35,7 @@ urlpatterns = [
     url(r'^mobile/searchdepartment/(?P<hospitalid>\d+)/$', 'api.views.mobile_searchdepartment'''),
     url(r'^mobile/list/$', 'api.views.mobile_list'),
     url(r'^mobile/cancelappoint/(?P<appointid>\d+)/$', 'api.views.mobile_cancelappoint'''),
-    url(r'^mobile/payappoint/(?P<appointid>\d+)/$', 'api.views.mobile_payappoint'''),
+    url(r'^mobile/payappoint/$', 'api.views.mobile_payappoint'),
     url(r'^mobile/appoint/$', 'api.views.mobile_appoint'),
     url(r'^mobile/info/$', 'api.views.mobile_info'),
     url(r'^mobile/getdept/$', 'api.views.mobile_getdept'),

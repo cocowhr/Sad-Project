@@ -620,7 +620,7 @@ def mobile_showlist(user):
         return jresponse
     else:
         rresponse = dict()
-        rresponse['status'] = 'failed'
+        rresponse['status'] = 'noappoint'
         jresponse = json.dumps(rresponse)
         return HttpResponse(jresponse)
 
@@ -662,7 +662,14 @@ def mobile_cancelappoint(request, appointid):
             return HttpResponse(jresponse)
         try:
             appoint = Appointment.objects.get(id=decode['appoint'])
+            doctor = appoint.doctor
+            appointment_date=appoint.appointment_date
+            date2=appoint.date2
             Appointment.delete(appoint)
+            max=Maxium_Appointment.objects.get(doctor=doctor,date=appointment_date,date2=date2)
+            max.number=max.number+1
+            max.save()
+            username = decode['username']
             rresponse = dict()
             rresponse['status'] = 'normal'
             jresponse = json.dumps(rresponse)
@@ -691,10 +698,20 @@ def mobile_payappoint(request):
             return HttpResponse(jresponse)
         try:
             appoint = Appointment.objects.get(id=decode['appoint'])
-            appoint.status = 1
-            appoint.save()
-            username = decode['username']
-            jresponse = mobile_showlist(username)
+            order = Order()
+            order.hospital = appoint.hospital
+            order.doctor = appoint.doctor
+            order.department = appoint.department
+            order.user = appoint.user
+            order.appointment_date = appoint.appointment_date
+            order.date2 = appoint.date2
+            order.create_date = appoint.create_date
+            order.fare = appoint.fare
+            order.save()
+            Appointment.delete(appoint)
+            rresponse = dict()
+            rresponse['status'] = 'normal'
+            jresponse = json.dumps(rresponse)
             return HttpResponse(jresponse)
         except ObjectDoesNotExist:
             rresponse = dict()
@@ -779,6 +796,7 @@ def mobile_info(request):
         hosp1['id'] = hosp.id
         hosp1['name'] = hosp.name
         hosp1['city'] = hosp.city
+        hosp1['contact']=hosp.contact
         rresponse['info'].append(hosp1)  # 将单个医院实体加入医院列表信息字典
     jresponse = json.dumps(rresponse)
     return HttpResponse(jresponse)
@@ -810,7 +828,6 @@ def mobile_getdept(request):
     return HttpResponse(jresponse)
 
 
-@csrf_exempt
 def mobile_getdoc(request):
     """
     返回信息结构为{status:状态参数, info:医生列表信息}
@@ -821,15 +838,22 @@ def mobile_getdoc(request):
     decode = m_decode(request.body)  # request内容由json解码为dict
     rresponse = dict()
     rresponse['info'] = []
-    dept = decode['dept']
-    doclist = Doctor.objects.filter(department=dept)
-    info = dict()  # 医生列表
-    count = 0
-    rresponse['status'] = 'normal'
-    for doc in doclist:
-        doc1 = dict()
-        doc1['id'] = doc.id
-        doc1['name'] = doc.name
-        rresponse['info'].append(doc1)
+    hospid = decode['hosp']
+    deptid = decode['dept']
+    date = decode['date']
+    date2 = decode['date2']
+    Max = Maxium_Appointment.objects.filter(hospital=hospid, department=deptid, date=date, date2=date2)
+    for record in Max:
+        if record.number != 0:
+            doc = record.doctor
+            doc = Doctor.objects.get()
+        # info = dict()  # 医生列表
+        # count = 0
+        # rresponse['status'] = 'normal'
+        # for doc in doclist:
+            doc1 = dict()
+            doc1['id'] = doc.id
+            doc1['name'] = doc.name
+            rresponse['info'].append(doc1)
     jresponse = json.dumps(rresponse)
     return HttpResponse(jresponse)
