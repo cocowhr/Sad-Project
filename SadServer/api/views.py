@@ -646,7 +646,7 @@ def mobile_list(request):
 
 
 @csrf_exempt
-def mobile_cancelappoint(request):
+def mobile_cancelappoint(request, appointid):
     """
     返回信息结构为{status:状态参数}
     :param request: Http request
@@ -663,8 +663,9 @@ def mobile_cancelappoint(request):
         try:
             appoint = Appointment.objects.get(id=decode['appoint'])
             Appointment.delete(appoint)
-            username = decode['username']
-            jresponse = mobile_showlist(username)
+            rresponse = dict()
+            rresponse['status'] = 'normal'
+            jresponse = json.dumps(rresponse)
             return HttpResponse(jresponse)
         except ObjectDoesNotExist:
             rresponse = dict()
@@ -724,30 +725,33 @@ def mobile_appoint(request):
         user = User.objects.get(name=username)
         appointment_date = decode['date']
         doctor = Doctor.objects.get(id=doctorid)
-        appointlist = Appointment.objects.filter(user=user, doctor=doctor)
+        appointlist = Appointment.objects.filter(user=user)
         if appointlist.__len__() <= 3:
             appointlist = Appointment.objects.filter(user=user, department=doctor.department)
-        if appointlist.__len__() == 0:
-            context = {}
-            appoint = Appointment()
-            appoint.user = user
-            appoint.fare = doctor.fee
-            appoint.doctor = doctor
-            appoint.date2 = date2
-            appoint.hospital = doctor.hospital
-            appoint.department = doctor.department
-            appoint.appointment_date = appointment_date
-            appoint.save()
-            max=Maxium_Appointment.objects.get(doctor=doctor,date=appointment_date,date2=date2)
-            max.number=max.number-1
-            max.save()
-            rresponse['status'] = 'normal'
-            jresponse = json.dumps(rresponse)
-            return jresponse
+            if appointlist.__len__() == 0:
+                appoint = Appointment()
+                appoint.user = user
+                appoint.fare = doctor.fee
+                appoint.doctor = doctor
+                appoint.date2 = date2
+                appoint.hospital = doctor.hospital
+                appoint.department = doctor.department
+                appoint.appointment_date = appointment_date
+                appoint.save()
+                max=Maxium_Appointment.objects.get(doctor=doctor,date=appointment_date,date2=date2)
+                max.number=max.number-1
+                max.save()
+                rresponse['status'] = 'normal'
+                jresponse = json.dumps(rresponse)
+                return HttpResponse(jresponse)
+            else:
+                rresponse['status'] = 'appoint_failed'
+                jresponse = json.dumps(rresponse)
+                return jresponse
         else:
             rresponse['status'] = 'appoint_failed'
             jresponse = json.dumps(rresponse)
-            return jresponse
+            return HttpResponse(jresponse)
 
 
 @csrf_exempt

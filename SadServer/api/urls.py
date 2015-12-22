@@ -39,5 +39,5 @@ urlpatterns = [
     url(r'^mobile/appoint/$', 'api.views.mobile_appoint'),
     url(r'^mobile/info/$', 'api.views.mobile_info'),
     url(r'^mobile/getdept/$', 'api.views.mobile_getdept'),
-
+    url(r'^mobile/getdoc/$', 'api.views.mobile_getdoc'),
 ]

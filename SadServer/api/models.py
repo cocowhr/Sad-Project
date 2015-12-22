@@ -36,7 +36,6 @@ class Doctor(models.Model):
     limit = models.IntegerField(default=0)
     hospital = models.ForeignKey(Hospital)
     department = models.ForeignKey(Department)
-    appoint_time = models.CharField(max_length=7)
 
 
 class Appointment(models.Model):
